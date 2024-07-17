@@ -18,6 +18,7 @@ import { Rating } from "../database/models/rating.model";
 import { spCoatingModel } from '../database/models/sp-coating.model';
 import { SpMasonry } from '../database/models/sp-masonry.model';
 import { ProductFilterDto } from './dto/product-filter.dto';
+import { SpSaleTypeModel } from '../database/models/sp-sale-type.model';
 
 @Injectable()
 export class ProductsService {
@@ -29,8 +30,6 @@ export class ProductsService {
     @InjectModel(ProductRecommendation) private readonly productRecommendationModel: typeof ProductRecommendation,
     @InjectModel(ProductPhoto) private readonly productPhotoModel: typeof ProductPhoto,
     @InjectModel(Rating) private readonly ratingModel: typeof Rating,
-    @InjectModel(spCoatingModel) private readonly coatingModel: typeof spCoatingModel,
-    @InjectModel(SpMasonry) private readonly masonryModel: typeof SpMasonry,
     private readonly s3Service: S3Service
   ) {
   }
@@ -169,7 +168,20 @@ export class ProductsService {
           ]
         },
         ProductPhoto,
-        ProductDetails
+        ProductDetails,
+        {
+          model: spCoatingModel,
+          attributes: ["id", "coating_name"]
+        },
+        {
+          model: SpMasonry,
+          through: { attributes: [] },
+          attributes: ["id", "masonry_name"]
+        },
+        {
+          model: SpSaleTypeModel,
+          attributes: ["id", "type"]
+        }
       ]
     }).then(product => {
       if (product) {
@@ -181,12 +193,16 @@ export class ProductsService {
             ...rec.recommendedProduct.get(),
             category: rec.recommendedProduct.category,
             photos: rec.recommendedProduct.photos
-          }))
+          })),
+          coating: product.coating ? { id: product.coating.id, type: product.coating.coating_name } : null,
+          masonries: product.masonries ? product.masonries.map(masonry => ({ id: masonry.id, masonryName: masonry.masonry_name })) : [],
+          saleType: product.saleType ? { id: product.saleType.id, type: product.saleType.type } : null
         };
       }
       return null;
     });
   }
+
 
 
   async findByFilter(filters: ProductFilterDto): Promise<any> {
