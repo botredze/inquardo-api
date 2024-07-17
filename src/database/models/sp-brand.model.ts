@@ -4,7 +4,7 @@ import { Product } from './product.model';
 import { SpMasonry } from './sp-masonry.model';
 import { SpSizeRate } from './sp-size-rate.model';
 import { SpColorPalitry } from './sp-color-palitry.model';
-import { spCoatingModel } from '../../../dist/database/models/sp-coating.model';
+import { spCoatingModel } from './sp-coating.model';
 
 @Table({ tableName: 'sp_brands' })
 export class SpBrand extends Model<SpBrand> {

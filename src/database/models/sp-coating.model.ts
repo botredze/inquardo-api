@@ -2,7 +2,7 @@ import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize
 import { SpBrand } from './sp-brand.model';
 
 @Table({ tableName: 'sp_coating' })
-export class SpCoatingModel extends Model<SpCoatingModel> {
+export class spCoatingModel extends Model<spCoatingModel> {
   @Column({ type: DataType.INTEGER, autoIncrement: true, primaryKey: true })
   id: number;
 
