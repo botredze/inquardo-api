@@ -14,6 +14,7 @@ import { FavoriteProduct } from "./favorite.model";
 import { SpMasonry } from './sp-masonry.model';
 import { ProductMasonry } from './product-masonry.model';
 import { spCoatingModel, } from './sp-coating.model';
+import { SpSaleTypeModel } from './sp-sale-type.model';
 
 @Table({ tableName: 'products' })
 export class Product extends Model<Product> {
@@ -50,6 +51,10 @@ export class Product extends Model<Product> {
   @Column({ type: DataType.INTEGER, allowNull: false })
   coatingId: number;
 
+  @ForeignKey(() => SpSaleTypeModel)
+  @Column({ type: DataType.INTEGER, allowNull: false })
+  saleTypeId: number;
+
   @BelongsTo(() => SpBrand)
   brand: SpBrand;
 
@@ -73,6 +78,9 @@ export class Product extends Model<Product> {
 
   @HasMany(() => ProductColor)
   colors: ProductColor[];
+
+  @BelongsTo(() => SpSaleTypeModel)
+  saleType: SpSaleTypeModel;
 
   @HasMany(() => ProductSize)
   sizes: ProductSize[];

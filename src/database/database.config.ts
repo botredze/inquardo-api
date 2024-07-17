@@ -24,6 +24,7 @@ import { FavoriteProduct } from "./models/favorite.model";
 import { spCoatingModel } from './models/sp-coating.model';
 import { SpMasonry } from './models/sp-masonry.model';
 import { ProductMasonry } from './models/product-masonry.model';
+import { SpSaleTypeModel } from './models/sp-sale-type.model';
 
 @Module({
   imports: [
@@ -66,7 +67,8 @@ import { ProductMasonry } from './models/product-masonry.model';
         FavoriteProduct,
         spCoatingModel,
         SpMasonry,
-        ProductMasonry],
+        ProductMasonry,
+        SpSaleTypeModel],
     }),
   ],
 })

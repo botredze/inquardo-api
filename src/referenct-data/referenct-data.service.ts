@@ -20,8 +20,9 @@ export class ReferenceDataService {
     @InjectModel(SpMasonry) private readonly masonryModel: typeof SpMasonry, // Inject SpMasonry model
   ) {}
 
-  async findAllCategories() {
+  async findAllCategories(brandId: number) {
     const categories = await this.categoryModel.findAll({
+      where: { brandId },
       attributes: {
         include: [
           [
@@ -41,23 +42,23 @@ export class ReferenceDataService {
     return categories;
   }
 
-  findAllColors() {
-    return this.colorModel.findAll();
+  findAllColors(brandId: number) {
+    return this.colorModel.findAll({ where: { brandId } });
   }
 
   findAllBrands() {
     return this.brandModel.findAll();
   }
 
-  findAllSizes() {
-    return this.sizeModel.findAll();
+  findAllSizes(brandId: number) {
+    return this.sizeModel.findAll({ where: { brandId } });
   }
 
-  findAllCoatings() {
-    return this.coatingModel.findAll();
+  findAllCoatings(brandId: number) {
+    return this.coatingModel.findAll({ where: { brandId } });
   }
 
-  findAllMasonryTypes() {
-    return this.masonryModel.findAll();
+  findAllMasonryTypes(brandId: number) {
+    return this.masonryModel.findAll({ where: { brandId } });
   }
 }

@@ -1,20 +1,22 @@
-import { Controller, Get } from '@nestjs/common';
-import { ApiTags } from '@nestjs/swagger'; // Import ApiTags decorator
-import { ReferenceDataService } from "./referenct-data.service";
+import { Controller, Get, Query } from '@nestjs/common';
+import { ApiTags, ApiQuery } from '@nestjs/swagger';
+import { ReferenceDataService } from './referenct-data.service';
 
-@ApiTags('Reference Data') // Add ApiTags decorator to specify the tag for Swagger
+@ApiTags('Reference Data')
 @Controller('reference-data')
 export class ReferenceDataController {
   constructor(private readonly referenceDataService: ReferenceDataService) {}
 
   @Get('categories')
-  async findAllCategories() {
-    return this.referenceDataService.findAllCategories();
+  @ApiQuery({ name: 'brandId', required: true, type: Number, description: 'The ID of the brand' })
+  async findAllCategories(@Query('brandId') brandId: number) {
+    return this.referenceDataService.findAllCategories(brandId);
   }
 
   @Get('colors')
-  async findAllColors() {
-    return this.referenceDataService.findAllColors();
+  @ApiQuery({ name: 'brandId', required: true, type: Number, description: 'The ID of the brand' })
+  async findAllColors(@Query('brandId') brandId: number) {
+    return this.referenceDataService.findAllColors(brandId);
   }
 
   @Get('brands')
@@ -23,17 +25,20 @@ export class ReferenceDataController {
   }
 
   @Get('sizes')
-  async findAllSizes() {
-    return this.referenceDataService.findAllSizes();
+  @ApiQuery({ name: 'brandId', required: true, type: Number, description: 'The ID of the brand' })
+  async findAllSizes(@Query('brandId') brandId: number) {
+    return this.referenceDataService.findAllSizes(brandId);
   }
 
   @Get('coatings')
-  async findAllCoatings() {
-    return this.referenceDataService.findAllCoatings();
+  @ApiQuery({ name: 'brandId', required: true, type: Number, description: 'The ID of the brand' })
+  async findAllCoatings(@Query('brandId') brandId: number) {
+    return this.referenceDataService.findAllCoatings(brandId);
   }
 
   @Get('masonry-types')
-  async findAllMasonryTypes() {
-    return this.referenceDataService.findAllMasonryTypes();
+  @ApiQuery({ name: 'brandId', required: true, type: Number, description: 'The ID of the brand' })
+  async findAllMasonryTypes(@Query('brandId') brandId: number) {
+    return this.referenceDataService.findAllMasonryTypes(brandId);
   }
 }
