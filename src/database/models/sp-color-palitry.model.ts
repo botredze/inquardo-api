@@ -1,5 +1,5 @@
-import { Table, Column, Model, DataType, ForeignKey } from 'sequelize-typescript';
-import { Product } from './product.model';
+import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { SpBrand } from './sp-brand.model';
 
 @Table({ tableName: 'sp_color_palitry' })
 export class SpColorPalitry extends Model<SpColorPalitry> {
@@ -11,4 +11,11 @@ export class SpColorPalitry extends Model<SpColorPalitry> {
 
   @Column({ type: DataType.STRING, allowNull: false })
   colorName: string;
+
+  @ForeignKey(() => SpBrand)
+  @Column({ type: DataType.INTEGER, allowNull: false })
+  brandId: number;
+
+  @BelongsTo(() => SpBrand)
+  brand: SpBrand;
 }
