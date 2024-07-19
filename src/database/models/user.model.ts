@@ -31,10 +31,16 @@ export class User extends Model<User> {
   })
   phone: string;
 
+  @ApiProperty({ example: new Date() })
+  @Column({
+    type: DataType.DATE,
+    allowNull: true,
+  })
+  expiresAt: Date;
+
   @ApiProperty({ type: UserDetails })
   @HasOne(() => UserDetails)
   userDetails: UserDetails;
-
 
   @HasMany(() => Basket)
   baskets: Basket[];

@@ -7,6 +7,7 @@ import { ViewUserHistoryModule } from "./view-user-history/view-user-history-mod
 import { BasketModule } from './basket/basket.module';
 import { S3Module } from "./s3/s3.module";
 import { FavoriteProductsModule } from "./favorites/favorite-products.module";
+import { TempUserModule } from './temp-user/temp-user.module';
 
 const DEFAULT_ADMIN = {
   email: 'admin@example.com',
@@ -14,7 +15,7 @@ const DEFAULT_ADMIN = {
 }
 
 @Module({
-  imports: [DatabaseModule, UsersModule, ProductsModule, ReferenceDataModule, ViewUserHistoryModule, BasketModule, S3Module, FavoriteProductsModule],
+  imports: [DatabaseModule, UsersModule, ProductsModule, ReferenceDataModule, ViewUserHistoryModule, BasketModule, S3Module, FavoriteProductsModule, TempUserModule],
   controllers: [],
   providers: [],
 })
