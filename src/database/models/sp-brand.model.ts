@@ -31,4 +31,5 @@ export class SpBrand extends Model<SpBrand> {
 
   @HasMany(() => SpColorPalitry)
   colors: SpColorPalitry[];
+
 }

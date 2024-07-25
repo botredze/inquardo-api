@@ -15,6 +15,7 @@ import { SpMasonry } from './sp-masonry.model';
 import { ProductMasonry } from './product-masonry.model';
 import { spCoatingModel, } from './sp-coating.model';
 import { SpSaleTypeModel } from './sp-sale-type.model';
+import { spTextureModel } from './sp-texture.model';
 
 @Table({ tableName: 'products' })
 export class Product extends Model<Product> {
@@ -54,6 +55,10 @@ export class Product extends Model<Product> {
   @ForeignKey(() => SpSaleTypeModel)
   @Column({ type: DataType.INTEGER, allowNull: false })
   saleTypeId: number;
+
+  @ForeignKey(() => spTextureModel)
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  textureId: number;
 
   @BelongsTo(() => SpBrand)
   brand: SpBrand;
@@ -96,4 +101,7 @@ export class Product extends Model<Product> {
 
   @BelongsToMany(() => SpMasonry, { through: { model: () => ProductMasonry } })
   masonries: SpMasonry[];
+
+  @BelongsTo(() => spTextureModel)
+  texture: spTextureModel;
 }

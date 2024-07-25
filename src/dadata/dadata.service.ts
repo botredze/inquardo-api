@@ -14,6 +14,7 @@ export class DaDataService {
   }
 
   async cleanAddress(address: string) {
+    console.log(this.token, this.secretKey);
     const options = {
       method: 'POST',
       url: this.apiUrl,

@@ -9,10 +9,11 @@ import { ReferenceDataService } from "./referenct-data.service";
 import { Product } from "../database/models/product.model";
 import { SpMasonry } from '../database/models/sp-masonry.model';
 import { spCoatingModel } from '../database/models/sp-coating.model';
+import { spTextureModel } from '../database/models/sp-texture.model';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([Category, SpColorPalitry, SpBrand, SpSizeRate, Product, SpMasonry, spCoatingModel]),
+    SequelizeModule.forFeature([Category, SpColorPalitry, SpBrand, SpSizeRate, Product, SpMasonry, spCoatingModel, spTextureModel]),
   ],
   controllers: [ReferenceDataController],
   providers: [ReferenceDataService],

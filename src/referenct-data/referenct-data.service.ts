@@ -7,6 +7,7 @@ import { InjectModel } from '@nestjs/sequelize';
 import { SpMasonry } from '../database/models/sp-masonry.model';
 import { spCoatingModel } from '../database/models/sp-coating.model';
 import { Injectable } from '@nestjs/common';
+import { spTextureModel } from '../database/models/sp-texture.model';
 
 @Injectable()
 export class ReferenceDataService {
@@ -16,49 +17,43 @@ export class ReferenceDataService {
     @InjectModel(SpBrand) private readonly brandModel: typeof SpBrand,
     @InjectModel(SpSizeRate) private readonly sizeModel: typeof SpSizeRate,
     @InjectModel(Product) private readonly productModel: typeof Product,
-    @InjectModel(spCoatingModel) private readonly coatingModel: typeof spCoatingModel, // Inject spCoating model
-    @InjectModel(SpMasonry) private readonly masonryModel: typeof SpMasonry, // Inject SpMasonry model
+    @InjectModel(spCoatingModel) private readonly coatingModel: typeof spCoatingModel,
+    @InjectModel(SpMasonry) private readonly masonryModel: typeof SpMasonry,
+    @InjectModel(spTextureModel) private readonly textureModel: typeof spTextureModel,
   ) {}
 
-  async findAllCategories(brandId: number) {
-    const categories = await this.categoryModel.findAll({
-      where: { brandId },
-      attributes: {
-        include: [
-          [
-            this.productModel.sequelize.fn('COUNT', this.productModel.sequelize.col('products.id')),
-            'count',
-          ],
-        ],
-      },
+  async findAllBrands() {
+    const brands = await this.brandModel.findAll({
+      attributes: [
+        'id',
+        'brandName',
+        [this.productModel.sequelize.fn('COUNT', this.productModel.sequelize.col('products.id')), 'productCount']
+      ],
       include: [
         {
           model: Product,
           attributes: [],
+          required: false,
         },
       ],
-      group: ['Category.id'],
+      group: ['SpBrand.id'],
     });
-    return categories;
+    return brands;
   }
 
-  findAllColors(brandId: number) {
-    return this.colorModel.findAll({ where: { brandId } });
-  }
+  async findAllDataForBrand(brandId: number) {
+    const colors = await this.colorModel.findAll({ where: { brandId } });
+    const sizes = await this.sizeModel.findAll({ where: { brandId } });
+    const coatings = await this.coatingModel.findAll({ where: { brandId } });
+    const masonryTypes = await this.masonryModel.findAll({ where: { brandId } });
+    const texture = await this.textureModel.findAll()
 
-  findAllBrands() {
-    return this.brandModel.findAll();
-  }
-
-  findAllSizes(brandId: number) {
-    return this.sizeModel.findAll({ where: { brandId } });
-  }
-
-  findAllCoatings(brandId: number) {
-    return this.coatingModel.findAll({ where: { brandId } });
-  }
-
-  findAllMasonryTypes(brandId: number) {
-    return this.masonryModel.findAll({ where: { brandId } });
+    return {
+      colors,
+      sizes,
+      coatings,
+      masonryTypes,
+      texture
+    };
   }
 }

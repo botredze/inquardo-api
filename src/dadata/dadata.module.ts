@@ -8,4 +8,4 @@ import { DaDataService } from './dadata.service';
   controllers: [DaDataController],
   providers: [DaDataService],
 })
-export class AppModule {}
+export class DadataModule {}
