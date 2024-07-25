@@ -25,6 +25,7 @@ import { spCoatingModel } from './models/sp-coating.model';
 import { SpMasonry } from './models/sp-masonry.model';
 import { ProductMasonry } from './models/product-masonry.model';
 import { SpSaleTypeModel } from './models/sp-sale-type.model';
+import { spTextureModel } from './models/sp-texture.model';
 
 @Module({
   imports: [
@@ -68,7 +69,8 @@ import { SpSaleTypeModel } from './models/sp-sale-type.model';
         spCoatingModel,
         SpMasonry,
         ProductMasonry,
-        SpSaleTypeModel],
+        SpSaleTypeModel,
+        spTextureModel],
     }),
   ],
 })

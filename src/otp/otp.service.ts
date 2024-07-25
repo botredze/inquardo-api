@@ -1,43 +1,56 @@
 import { Injectable } from '@nestjs/common';
-import { SmsAero, SmsAeroError, SmsAeroHTTPError } from 'smsaero';
-import { UserRepository } from "../users/user.repository";
+import axios from 'axios';
+import { UserRepository } from '../users/user.repository';
 import * as dotenv from 'dotenv';
 dotenv.config();
 
 @Injectable()
 export class OtpService {
-  private readonly smsAeroClient: SmsAero;
+  private readonly apiUrl: string = 'https://zvonok.com/manager/cabapi_external/api/v1/phones/tellcode/';
+  private readonly publicKey: string;
+  private readonly campaignId: string;
 
   constructor(
     private readonly userRepository: UserRepository,
   ) {
-    this.smsAeroClient = new SmsAero(process.env.SMSAERO_EMAIL, process.env.SMSAERO_API_KEY);
+    this.publicKey = process.env.ZVONOK_PUBLIC_KEY;
+    this.campaignId = process.env.ZVONOK_CAMPAIGN_ID;
   }
 
-  async generateAndSendOTP(phone: string) : Promise<void> {
-    const min = 1000;
-    const max = 9999;
-    const otp = (Math.floor(Math.random() * (max - min + 1)) + min).toString()
-
+  async generateAndSendOTP(phone: string): Promise<void> {
+    const otp = this.generateOTP();
     try {
       await this.sendOTP(phone, otp);
       await this.saveOTP(phone, otp);
     } catch (error) {
+      console.error('Error sending OTP:', error);
       throw new Error('Error sending OTP');
     }
   }
 
-  async sendOTP(phoneNumber: string, otp: string): Promise<void> {
+  private generateOTP(): string {
+    const min = 1000;
+    const max = 9999;
+    return (Math.floor(Math.random() * (max - min + 1)) + min).toString();
+  }
+
+  async sendOTP(phone: string, otp: string): Promise<void> {
+    const formData = new URLSearchParams();
+    formData.append('public_key', this.publicKey);
+    formData.append('phone', phone);
+    formData.append('campaign_id', this.campaignId);
+    formData.append('pincode', otp);
+
     try {
-      await this.smsAeroClient.send(phoneNumber, `Ваш код для входа в inquadro: ${otp} n/n/ введите в поле в окне регистрации`);
-    } catch (error) {
-      if (error instanceof SmsAeroError) {
-        throw new Error(`SmsAero error: ${error.message}`);
-      } else if (error instanceof SmsAeroHTTPError) {
-        throw new Error(`HTTP error: ${error.message}`);
-      } else {
-        throw new Error(`Unknown error: ${error}`);
+      const response = await axios.post(this.apiUrl, formData, {
+        headers: { 'Content-Type': 'application/x-www-form-urlencoded' },
+      });
+      if (response.data.status !== 'ok') {
+        throw new Error(`API responded with status: ${response.data.status}`);
       }
+    } catch (error) {
+      console.error('Error sending OTP via API:', error);
+      throw new Error('Error sending OTP via API');
     }
   }
 
