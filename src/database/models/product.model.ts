@@ -16,6 +16,7 @@ import { ProductMasonry } from './product-masonry.model';
 import { spCoatingModel, } from './sp-coating.model';
 import { SpSaleTypeModel } from './sp-sale-type.model';
 import { spTextureModel } from './sp-texture.model';
+import { ProductStatus } from './product-status.model';
 
 @Table({ tableName: 'products' })
 export class Product extends Model<Product> {
@@ -104,4 +105,7 @@ export class Product extends Model<Product> {
 
   @BelongsTo(() => spTextureModel)
   texture: spTextureModel;
+
+  @HasOne(() => ProductStatus)
+  productStatus: ProductStatus;
 }

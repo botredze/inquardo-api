@@ -8,6 +8,7 @@ import { SpMasonry } from '../database/models/sp-masonry.model';
 import { spCoatingModel } from '../database/models/sp-coating.model';
 import { Injectable } from '@nestjs/common';
 import { spTextureModel } from '../database/models/sp-texture.model';
+import { ProductStatus } from 'src/database/models/product-status.model';
 
 @Injectable()
 export class ReferenceDataService {
@@ -20,6 +21,7 @@ export class ReferenceDataService {
     @InjectModel(spCoatingModel) private readonly coatingModel: typeof spCoatingModel,
     @InjectModel(SpMasonry) private readonly masonryModel: typeof SpMasonry,
     @InjectModel(spTextureModel) private readonly textureModel: typeof spTextureModel,
+    @InjectModel(ProductStatus) private readonly statusModel: typeof ProductStatus
   ) {}
 
   async findAllBrands() {
@@ -46,14 +48,16 @@ export class ReferenceDataService {
     const sizes = await this.sizeModel.findAll({ where: { brandId } });
     const coatings = await this.coatingModel.findAll({ where: { brandId } });
     const masonryTypes = await this.masonryModel.findAll({ where: { brandId } });
-    const texture = await this.textureModel.findAll()
+    const texture = await this.textureModel.findAll();
+    const status = await this.statusModel.findAll();
 
     return {
       colors,
       sizes,
       coatings,
       masonryTypes,
-      texture
+      texture, 
+      status
     };
   }
 }

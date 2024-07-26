@@ -20,6 +20,7 @@ import { SpMasonry } from '../database/models/sp-masonry.model';
 import { ProductFilterDto } from './dto/product-filter.dto';
 import { SpSaleTypeModel } from '../database/models/sp-sale-type.model';
 import { spTextureModel } from '../database/models/sp-texture.model';
+import { ProductStatus } from "src/database/models/product-status.model";
 
 @Injectable()
 export class ProductsService {
@@ -131,7 +132,8 @@ export class ProductsService {
         ProductPhoto,
         spCoatingModel,
         SpMasonry,
-        spTextureModel
+        spTextureModel,
+        ProductStatus
       ]
     }).then(products => {
       return products.map(product => ({
@@ -172,6 +174,7 @@ export class ProductsService {
         ProductPhoto,
         ProductDetails,
         spTextureModel,
+        ProductStatus,
         {
           model: spCoatingModel,
           attributes: ["id", "coating_name"]
