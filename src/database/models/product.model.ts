@@ -13,7 +13,7 @@ import { User } from "./user.model";
 import { FavoriteProduct } from "./favorite.model";
 import { SpMasonry } from './sp-masonry.model';
 import { ProductMasonry } from './product-masonry.model';
-import { spCoatingModel, } from './sp-coating.model';
+import { spCoatingModel } from './sp-coating.model';
 import { SpSaleTypeModel } from './sp-sale-type.model';
 import { spTextureModel } from './sp-texture.model';
 import { ProductStatus } from './product-status.model';
@@ -61,6 +61,10 @@ export class Product extends Model<Product> {
   @Column({ type: DataType.INTEGER, allowNull: true })
   textureId: number;
 
+  @ForeignKey(() => ProductStatus)
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  statusId: number;
+
   @BelongsTo(() => SpBrand)
   brand: SpBrand;
 
@@ -106,6 +110,6 @@ export class Product extends Model<Product> {
   @BelongsTo(() => spTextureModel)
   texture: spTextureModel;
 
-  @HasOne(() => ProductStatus)
+  @BelongsTo(() => ProductStatus)
   productStatus: ProductStatus;
 }

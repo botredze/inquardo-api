@@ -8,17 +8,6 @@ module.exports = {
         primaryKey: true,
         autoIncrement: true,
       },
-      productId: {
-        type: Sequelize.INTEGER,
-        allowNull: false,
-        unique: true,
-        references: {
-          model: 'products',
-          key: 'id',
-        },
-        onUpdate: 'CASCADE',
-        onDelete: 'CASCADE',
-      },
       status: {
         type: Sequelize.STRING,
         allowNull: false,
@@ -34,21 +23,31 @@ module.exports = {
         defaultValue: Sequelize.literal('CURRENT_TIMESTAMP'),
       },
     });
-
-    // Добавление внешнего ключа
-    await queryInterface.addConstraint('product_status', {
-      type: 'foreign key',
-      fields: ['productId'],
-      references: {
-        table: 'products',
-        field: 'id',
-      },
-      onDelete: 'cascade',
-      onUpdate: 'cascade',
-    });
   },
 
   down: async (queryInterface, Sequelize) => {
     await queryInterface.dropTable('product_status');
   }
 };
+
+'use strict';
+
+module.exports = {
+  up: async (queryInterface, Sequelize) => {
+    await queryInterface.addColumn('products', 'statusId', {
+      type: Sequelize.INTEGER,
+      allowNull: true,
+      references: {
+        model: 'product_status',
+        key: 'id',
+      },
+      onUpdate: 'CASCADE',
+      onDelete: 'SET NULL',
+    });
+  },
+
+  down: async (queryInterface, Sequelize) => {
+    await queryInterface.removeColumn('products', 'statusId');
+  }
+};
+

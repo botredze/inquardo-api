@@ -14,21 +14,37 @@ export class TempUserService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async createOrLoginUser(phone?: string, otp?: string): Promise<{ id: number, phone: string, token: string }> {
-    let user = await this.userModel.findOne({ where: { phone, otp } });
+  async createOrLoginUser(authToken?:string): Promise<{ id: number, token: string }> {
+    let userIdFromToken: number = null;
 
-    if (!user) {
+    console.log(authToken, 'authToken');
+    if (authToken) {
+      try {
+        const decodedToken = this.jwtService.verify(authToken);
+        userIdFromToken = decodedToken.sub;
+      } catch (err) {
+        throw new Error('Invalid token');
+      }
+    }
+    if (userIdFromToken) {
+      const user = await this.userModel.findByPk(userIdFromToken);
+      if (user) {
+        return { id: user.id, token: authToken };
+      } else {
+        throw new Error('User not found');
+      }
+    } else {
       const generatedPhone = this.generateRandomPhoneNumber();
       const generatedOtp = this.generateRandomOtp();
-      const expiresAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000); // 3 дня
+      const expiresAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
 
-      user = await this.userModel.create({ phone: generatedPhone, otp: generatedOtp, expiresAt });
+      const user = await this.userModel.create({ phone: generatedPhone, otp: generatedOtp, expiresAt });
+
+      const payload = { sub: user.id };
+      const token = this.jwtService.sign(payload);
+
+      return { id: user.id, token };
     }
-
-    const payload = { phone: user.phone, sub: user.id };
-    const token = this.jwtService.sign(payload);
-
-    return { id: user.id, phone: user.phone, token };
   }
 
   @Cron('0 0 * * *')

@@ -21,6 +21,7 @@ import { ProductFilterDto } from './dto/product-filter.dto';
 import { SpSaleTypeModel } from '../database/models/sp-sale-type.model';
 import { spTextureModel } from '../database/models/sp-texture.model';
 import { ProductStatus } from "src/database/models/product-status.model";
+import { ViewUserHistory } from '../database/models/view-user-history.model';
 
 @Injectable()
 export class ProductsService {
@@ -32,6 +33,7 @@ export class ProductsService {
     @InjectModel(ProductRecommendation) private readonly productRecommendationModel: typeof ProductRecommendation,
     @InjectModel(ProductPhoto) private readonly productPhotoModel: typeof ProductPhoto,
     @InjectModel(Rating) private readonly ratingModel: typeof Rating,
+    @InjectModel(ViewUserHistory) private viewUserHistoryModel: typeof ViewUserHistory,
     private readonly s3Service: S3Service
   ) {
   }
@@ -124,7 +126,7 @@ export class ProductsService {
   }
 
 
-  findAll() {
+  async findAll() {
     return this.productModel.findAll({
       include: [
         Category,
@@ -142,8 +144,21 @@ export class ProductsService {
     });
   }
 
+  async createViewHistory(userId: number, productId: number): Promise<ViewUserHistory> {
+    try {
+      const viewHistory = await this.viewUserHistoryModel.create({
+        userId,
+        productId,
+        watchDate: new Date(),
+      });
+      return viewHistory;
+    } catch (error) {
+      throw new HttpException('Failed to create view history', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
 
-  async findOne(id: number) {
+
+  async findOne(id: number, userId?: number) {
     return this.productModel.findByPk(id, {
       include: [
         Category,
@@ -189,8 +204,12 @@ export class ProductsService {
           attributes: ["id", "type"]
         }
       ]
-    }).then(product => {
+    }).then(async product => {
       if (product) {
+        if (userId) {
+          await this.createViewHistory(userId, id);
+        }
+
         return {
           ...product.get(),
           colors: product.colors.map(color => ({ id: color.colorId, color: color.color.color })),
@@ -208,8 +227,6 @@ export class ProductsService {
       return null;
     });
   }
-
-
 
   async findByFilter(filters: ProductFilterDto): Promise<any> {
     try {

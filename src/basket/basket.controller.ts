@@ -1,20 +1,19 @@
-import { Body, Controller, HttpStatus, Get, Param, Post, Delete } from "@nestjs/common";
+import { Body, Controller, HttpStatus, Get, Param, Post, Delete, Req } from "@nestjs/common";
 import { ApiBadRequestResponse, ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
 import { BasketService } from "./basket.service";
 import { AddItemDto } from "./dto/add-item.dto";
+import { Request } from 'express';
 
 @ApiTags('basket')
 @Controller('basket')
 export class BasketController {
   constructor(private readonly basketService: BasketService) {}
 
-  @Get(':userId')
-  @ApiOperation({ summary: 'Get user basket' })
-  @ApiOkResponse({ description: 'Basket retrieved successfully' })
-  @ApiNotFoundResponse({ description: 'Basket not found' })
-  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
-  async getUserBasket(@Param('userId') userId: number): Promise<any> {
+  @Get()
+  async getUserBasket(@Req() req: Request): Promise<any> {
     try {
+      const authHeader = req.headers['authorization'];
+      const userId = this.basketService.decodeUserIdFromToken(authHeader);
       const basket = await this.basketService.getUserBasket(userId);
       return basket || null;
     } catch (error) {
@@ -24,13 +23,11 @@ export class BasketController {
   }
 
   @Post('addItem')
-  @ApiOperation({ summary: 'Add item to basket' })
-  @ApiOkResponse({ description: 'Item added to basket successfully' })
-  @ApiBadRequestResponse({ description: 'Bad request' })
-  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
-  async addItemToBasket(@Body() addItemDto: AddItemDto): Promise<any> {
+  async addItemToBasket(@Req() req: Request, @Body() addItemDto: AddItemDto): Promise<any> {
     try {
-      await this.basketService.addItemToBasket(addItemDto.userId, addItemDto.productId, addItemDto.colorId, addItemDto.sizeId);
+      const authHeader = req.headers['authorization'];
+      const userId = this.basketService.decodeUserIdFromToken(authHeader);
+      await this.basketService.addItemToBasket(userId, addItemDto.productId, addItemDto.colorId, addItemDto.sizeId);
       return { message: 'Item added to basket successfully' };
     } catch (error) {
       console.error('Error adding item to basket:', error);
@@ -38,13 +35,11 @@ export class BasketController {
     }
   }
 
-  @Delete(':userId/item/:itemId')
-  @ApiOperation({ summary: 'Remove item from basket' })
-  @ApiOkResponse({ description: 'Item removed from basket successfully' })
-  @ApiNotFoundResponse({ description: 'Basket or item not found' })
-  @ApiInternalServerErrorResponse({ description: 'Internal server error' })
-  async removeItemFromBasket(@Param('userId') userId: number, @Param('itemId') itemId: number): Promise<any> {
+  @Delete('item/:itemId')
+  async removeItemFromBasket(@Req() req: Request, @Param('itemId') itemId: number): Promise<any> {
     try {
+      const authHeader = req.headers['authorization'];
+      const userId = this.basketService.decodeUserIdFromToken(authHeader);
       await this.basketService.removeItemFromBasket(userId, itemId);
       return { message: 'Item removed from basket successfully' };
     } catch (error) {

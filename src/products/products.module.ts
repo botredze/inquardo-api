@@ -13,6 +13,9 @@ import { S3Module } from "../s3/s3.module";
 import { Rating } from "../database/models/rating.model";
 import { SpMasonry } from '../database/models/sp-masonry.model';
 import { spCoatingModel } from '../database/models/sp-coating.model';
+import { PassportModule } from '@nestjs/passport';
+import { JwtModule } from '@nestjs/jwt';
+import { ViewUserHistory } from '../database/models/view-user-history.model';
 
 
 @Module({
@@ -20,7 +23,6 @@ import { spCoatingModel } from '../database/models/sp-coating.model';
     SequelizeModule.forFeature([
       Product,
       Category,
-      Product,
       ProductColor,
       ProductSize,
       ProductRecommendation,
@@ -28,8 +30,14 @@ import { spCoatingModel } from '../database/models/sp-coating.model';
       ProductPhoto,
       Rating,
       SpMasonry,
-      spCoatingModel
+      spCoatingModel,
+      ViewUserHistory
     ]),
+    PassportModule,
+    JwtModule.register({
+      secret: 'Afina954120',
+    }),
+
     S3Module
   ],
   controllers: [ProductsController],

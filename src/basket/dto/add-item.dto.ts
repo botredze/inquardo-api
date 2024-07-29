@@ -2,12 +2,6 @@ import { ApiProperty } from '@nestjs/swagger';
 
 export class AddItemDto {
   @ApiProperty({
-    description: 'The ID of the user adding the item to the basket',
-    example: 1,
-  })
-  readonly userId: number;
-
-  @ApiProperty({
     description: 'The ID of the product being added to the basket',
     example: 123,
   })
@@ -24,4 +18,6 @@ export class AddItemDto {
     example: 67,
   })
   readonly sizeId?: number;
+
+  readonly count: number;
 }

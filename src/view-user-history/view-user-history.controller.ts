@@ -1,32 +1,24 @@
-import { Controller, Post, Get, Param, Body, HttpException, HttpStatus } from '@nestjs/common';
+import { Controller, Post, Get, Param, Body, HttpException, HttpStatus, Req } from '@nestjs/common';
 import { ViewUserHistoryService } from './view-user-history.service';
 import { ApiTags, ApiOperation, ApiResponse, ApiParam, ApiBadRequestResponse, ApiInternalServerErrorResponse, ApiBody } from '@nestjs/swagger';
+import { JwtService } from '@nestjs/jwt';
 
 @Controller('view-history')
 @ApiTags('View History')
 export class ViewUserHistoryController {
-  constructor(private readonly viewUserHistoryService: ViewUserHistoryService) {}
+  constructor(private readonly viewUserHistoryService: ViewUserHistoryService, private readonly jwtService: JwtService) {}
 
-  @Post()
-  @ApiOperation({ summary: 'Create view history' })
-  @ApiBody({ schema: { example: { userId: 123, productId: 456 } } })
-  @ApiResponse({ status: 200, description: 'View history created successfully' })
-  @ApiBadRequestResponse({ description: 'Invalid input' })
-  @ApiInternalServerErrorResponse({ description: 'Failed to create view history' })
-  async create(@Body('userId') userId: number, @Body('productId') productId: number) {
-    try {
-      return await this.viewUserHistoryService.createViewHistory(userId, productId);
-    } catch (error) {
-      throw new HttpException('Failed to create view history', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-  @Get(':userId')
-  @ApiOperation({ summary: 'Find user view history' })
-  @ApiParam({ name: 'userId', description: 'User ID', example: 123 })
-  @ApiResponse({ status: 200, description: 'User view history found successfully' })
-  @ApiResponse({ status: 404, description: 'User view history not found' })
-  async findUserViewHistory(@Param('userId') userId: number) {
+  @Get()
+  async findUserViewHistory( @Req() req: Request) {
+    const authHeader = req.headers['authorization'];
+    const userId = authHeader ? this.decodeUserIdFromToken(authHeader) : null;
     return this.viewUserHistoryService.findUserViewHistory(userId);
   }
+
+  private decodeUserIdFromToken(authHeader: string): number {
+    const token = authHeader.replace('Bearer ', '');
+    const decodedToken = this.jwtService.decode(token) as { sub: number };
+    return decodedToken.sub;
+  }
+
 }

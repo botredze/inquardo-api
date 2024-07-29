@@ -44,6 +44,7 @@ export class ReferenceDataService {
   }
 
   async findAllDataForBrand(brandId: number) {
+    console.log(brandId);
     const colors = await this.colorModel.findAll({ where: { brandId } });
     const sizes = await this.sizeModel.findAll({ where: { brandId } });
     const coatings = await this.coatingModel.findAll({ where: { brandId } });
@@ -56,7 +57,7 @@ export class ReferenceDataService {
       sizes,
       coatings,
       masonryTypes,
-      texture, 
+      texture,
       status
     };
   }

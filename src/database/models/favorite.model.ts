@@ -25,6 +25,9 @@ export class FavoriteProduct extends Model<FavoriteProduct> {
   @Column({ type: DataType.INTEGER, allowNull: true })
   sizeId?: number;
 
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  count: number;
+
   @BelongsTo(() => User)
   user: User;
 
@@ -36,4 +39,5 @@ export class FavoriteProduct extends Model<FavoriteProduct> {
 
   @BelongsTo(() => ProductSize)
   size: ProductSize;
+
 }

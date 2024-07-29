@@ -12,7 +12,7 @@ import { User } from '../database/models/user.model';
     PassportModule,
     JwtModule.register({
       secret: 'Afina954120',
-      signOptions: { expiresIn: '3d' },
+      signOptions: { expiresIn: '5m' },
     }),
   ],
   providers: [TempUserService],

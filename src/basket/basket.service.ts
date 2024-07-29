@@ -2,13 +2,15 @@ import { Injectable, NotFoundException, InternalServerErrorException } from '@ne
 import { Basket } from "../database/models/basket.model";
 import { BasketItem } from "../database/models/basket-item.model";
 import { InjectModel } from "@nestjs/sequelize";
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class BasketService {
-
-  constructor(@InjectModel(Basket) private basketModel: typeof Basket,
-              @InjectModel(BasketItem) private basketItemModel: typeof BasketItem) {
-  }
+  constructor(
+    @InjectModel(Basket) private basketModel: typeof Basket,
+    @InjectModel(BasketItem) private basketItemModel: typeof BasketItem,
+    private readonly jwtService: JwtService,
+  ) {}
 
   async addItemToBasket(userId: number, productId: number, colorId: number, sizeId: number): Promise<void> {
     try {
@@ -49,5 +51,11 @@ export class BasketService {
       console.error('Error removing item from basket:', error);
       throw new InternalServerErrorException('Error removing item from basket');
     }
+  }
+
+  decodeUserIdFromToken(authHeader: string): number {
+    const token = authHeader.replace('Bearer ', '');
+    const decodedToken = this.jwtService.decode(token) as { sub: number };
+    return decodedToken.sub;
   }
 }

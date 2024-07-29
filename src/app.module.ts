@@ -9,14 +9,11 @@ import { S3Module } from "./s3/s3.module";
 import { FavoriteProductsModule } from "./favorites/favorite-products.module";
 import { TempUserModule } from './temp-user/temp-user.module';
 import { DadataModule } from './dadata/dadata.module';
+import { ElasticsearchModuleLocal } from './elasticsearch/search.module';
 
-const DEFAULT_ADMIN = {
-  email: 'admin@example.com',
-  password: 'password',
-}
 
 @Module({
-  imports: [DatabaseModule, UsersModule, ProductsModule, ReferenceDataModule, ViewUserHistoryModule, BasketModule, S3Module, FavoriteProductsModule, TempUserModule, DadataModule],
+  imports: [DatabaseModule, UsersModule, ProductsModule, ReferenceDataModule, ViewUserHistoryModule, BasketModule, S3Module, FavoriteProductsModule, TempUserModule, DadataModule, ElasticsearchModuleLocal],
   controllers: [],
   providers: [],
 })
