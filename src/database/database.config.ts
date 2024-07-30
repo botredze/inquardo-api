@@ -5,9 +5,7 @@ import * as fs from 'fs';
 import * as path from 'path';
 import { Product } from "./models/product.model";
 import { SpBrand } from "./models/sp-brand.model";
-import { Category } from "./models/category.model";
 import { Rating } from "./models/rating.model";
-import { ProductDetails } from "./models/product-details.model";
 import { SpColorPalitry } from "./models/sp-color-palitry.model";
 import { SpSizeRate } from "./models/sp-size-rate.model";
 import { Address } from "./models/address.model";
@@ -23,10 +21,10 @@ import { ProductPhoto } from "./models/product-photo.model";
 import { FavoriteProduct } from "./models/favorite.model";
 import { spCoatingModel } from './models/sp-coating.model';
 import { SpMasonry } from './models/sp-masonry.model';
-import { ProductMasonry } from './models/product-masonry.model';
 import { SpSaleTypeModel } from './models/sp-sale-type.model';
 import { spTextureModel } from './models/sp-texture.model';
 import { ProductStatus } from './models/product-status.model';
+import { CollectionModel } from './models/collection.model';
 
 @Module({
   imports: [
@@ -46,13 +44,12 @@ import { ProductStatus } from './models/product-status.model';
           ca: fs.readFileSync(path.resolve(__dirname, '..', '..', 'ca-certificate.crt')).toString(),
         },
       },
-      // autoLoadModels: true,
-      // synchronize: true,
+      autoLoadModels: true,
+      synchronize: true,
       models: [Product,
+        CollectionModel,
         SpBrand,
-        Category,
         Rating,
-        ProductDetails,
         SpColorPalitry,
         SpSizeRate,
         Address,
@@ -62,14 +59,12 @@ import { ProductStatus } from './models/product-status.model';
         BasketItem,
         ViewUserHistory,
         ProductRecommendation,
-        ProductDetails,
         ProductSize,
         ProductColor,
         ProductPhoto,
         FavoriteProduct,
         spCoatingModel,
         SpMasonry,
-        ProductMasonry,
         SpSaleTypeModel,
         spTextureModel,
         ProductStatus],

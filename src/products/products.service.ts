@@ -2,13 +2,10 @@ import { Injectable, HttpException, HttpStatus } from "@nestjs/common";
 import { InjectModel } from "@nestjs/sequelize";
 import { Product } from "../database/models/product.model";
 import { CreateProductDto } from "./dto/create-product.dto";
-import { Category } from "../database/models/category.model";
-import { SpBrand } from "../database/models/sp-brand.model";
 import { ProductColor } from "../database/models/product-color.model";
 import { ProductSize } from "../database/models/product-size.model";
 import { ProductRecommendation } from "../database/models/product-recommendations.model";
 import { Op } from "sequelize";
-import { ProductDetails } from "../database/models/product-details.model";
 import { ProductPhoto } from "../database/models/product-photo.model";
 import { S3Service } from "../s3/s3.service";
 import { SpColorPalitry } from "../database/models/sp-color-palitry.model";
@@ -22,6 +19,8 @@ import { SpSaleTypeModel } from '../database/models/sp-sale-type.model';
 import { spTextureModel } from '../database/models/sp-texture.model';
 import { ProductStatus } from "src/database/models/product-status.model";
 import { ViewUserHistory } from '../database/models/view-user-history.model';
+import { CollectionModel } from '../database/models/collection.model';
+import { SpBrand } from '../database/models/sp-brand.model';
 
 @Injectable()
 export class ProductsService {
@@ -29,11 +28,11 @@ export class ProductsService {
     @InjectModel(Product) private readonly productModel: typeof Product,
     @InjectModel(ProductColor) private readonly productColorModel: typeof ProductColor,
     @InjectModel(ProductSize) private readonly productSizeModel: typeof ProductSize,
-    @InjectModel(ProductDetails) private readonly productDetailsModel: typeof ProductDetails,
     @InjectModel(ProductRecommendation) private readonly productRecommendationModel: typeof ProductRecommendation,
     @InjectModel(ProductPhoto) private readonly productPhotoModel: typeof ProductPhoto,
     @InjectModel(Rating) private readonly ratingModel: typeof Rating,
     @InjectModel(ViewUserHistory) private viewUserHistoryModel: typeof ViewUserHistory,
+    @InjectModel(SpMasonry) private productMasonryModel: typeof SpMasonry,
     private readonly s3Service: S3Service
   ) {
   }
@@ -52,10 +51,9 @@ export class ProductsService {
     return result;
   }
 
-
   async createProduct(data: CreateProductDto, files: Express.Multer.File[]): Promise<Product> {
     console.log(data);
-    const { colors, sizes, recommendations, photos, ...productData } = data;
+    const { colors, sizes, recommendations, photos, masonries, ...productData } = data;
 
     const details = {
       description: data["details.description"],
@@ -64,14 +62,16 @@ export class ProductsService {
     };
 
     try {
-      const product = await this.productModel.create(productData);
+      const product = await this.productModel.create({
+        ...productData,
+        textureId: data.textureId,
+        statusId: data.statusId,
+        saleTypeId: data.saleTypeId,
+        coatingId: data.coatingId,
+      });
 
       await this.ratingModel.create({ productId: product.id, rate: 10 });
 
-      if (details) {
-        const articul = this.generateArticul();
-        await this.productDetailsModel.create({ ...details, productId: product.id, articul });
-      }
 
       if (colors && colors.length > 0) {
         await this.productColorModel.bulkCreate(
@@ -85,8 +85,7 @@ export class ProductsService {
         );
       }
 
-      console.log(recommendations && recommendations.length > 1);
-      if (recommendations && recommendations.length > 1) {
+      if (recommendations && recommendations.length > 0) {
         await this.productRecommendationModel.bulkCreate(
           recommendations.map(recommendedProductId => ({
             productId: product.id,
@@ -95,10 +94,18 @@ export class ProductsService {
         );
       }
 
+      if (masonries && masonries.length > 0) {
+        await this.productMasonryModel.bulkCreate(
+          masonries.map(masonryId => ({
+            productId: product.id,
+            masonryId
+          }))
+        );
+      }
 
       if (files && files.length > 0) {
         const photoUploads = await Promise.all(files.map(file =>
-          this.s3Service.uploadFile(file, "188f78bd-inquadro-bucket", `products/${product.id}/${file.originalname}`)
+          this.s3Service.uploadFile(file, "inquadro-bucket", `products/${product.id}/${file.originalname}`)
         ));
 
         await this.productPhotoModel.bulkCreate(
@@ -126,43 +133,66 @@ export class ProductsService {
   }
 
 
-  async findAll() {
+  async findAll(brandId?: number) {
     return this.productModel.findAll({
       include: [
-        Category,
-        SpBrand,
-        ProductPhoto,
-        spCoatingModel,
-        SpMasonry,
-        spTextureModel,
-        ProductStatus
-      ]
+        {
+          model: CollectionModel,
+          attributes: ['collectionName', 'brandId'],
+          include: [
+            {
+              model: SpBrand,
+              attributes: ['brandName'],
+            }
+          ],
+          where: brandId ? { brandId } : undefined,
+        },
+        {
+          model: ProductPhoto,
+          attributes: ['photoUrl'],
+        },
+        {
+          model: spCoatingModel,
+          attributes: ['coating_name'],
+        },
+        {
+          model: SpMasonry,
+          attributes: ['masonry_name'],
+        },
+        {
+          model: spTextureModel,
+          attributes: ['textureName'],
+        },
+        {
+          model: ProductStatus,
+          attributes: ['status'],
+        }
+      ],
+      order: [['id', 'ASC']],
     }).then(products => {
       return products.map(product => ({
-        ...product.get()
+        ...product.get(),
+        collection: {
+          ...product.collection.get(),
+          brandName: product.collection.brand.brandName
+        }
       }));
     });
   }
 
-  async createViewHistory(userId: number, productId: number): Promise<ViewUserHistory> {
-    try {
-      const viewHistory = await this.viewUserHistoryModel.create({
-        userId,
-        productId,
-        watchDate: new Date(),
-      });
-      return viewHistory;
-    } catch (error) {
-      throw new HttpException('Failed to create view history', HttpStatus.INTERNAL_SERVER_ERROR);
-    }
-  }
-
-
   async findOne(id: number, userId?: number) {
     return this.productModel.findByPk(id, {
       include: [
-        Category,
-        SpBrand,
+        {
+          model: CollectionModel,
+          attributes: ['collectionName', 'brandId'],
+          include: [
+            {
+              model: SpBrand,
+              attributes: ['brandName'],
+            }
+          ],
+        },
         {
           model: ProductColor,
           attributes: ["colorId"],
@@ -180,14 +210,12 @@ export class ProductsService {
               model: Product,
               as: "recommendedProduct",
               include: [
-                Category,
                 ProductPhoto
               ]
             }
           ]
         },
         ProductPhoto,
-        ProductDetails,
         spTextureModel,
         ProductStatus,
         {
@@ -212,20 +240,35 @@ export class ProductsService {
 
         return {
           ...product.get(),
+          collection: {
+            ...product.collection.get(),
+            brandName: product.collection?.brand?.brandName
+          },
           colors: product.colors.map(color => ({ id: color.colorId, color: color.color.color })),
           sizes: product.sizes.map(size => ({ id: size.sizeId, sizeName: size.size.sizeName })),
           recommendations: product.recommendations.map(rec => ({
             ...rec.recommendedProduct.get(),
-            category: rec.recommendedProduct.category,
             photos: rec.recommendedProduct.photos
           })),
           coating: product.coating ? { id: product.coating.id, type: product.coating.coating_name } : null,
-          masonries: product.masonries ? product.masonries.map(masonry => ({ id: masonry.id, masonryName: masonry.masonry_name })) : [],
           saleType: product.saleType ? { id: product.saleType.id, type: product.saleType.type } : null
         };
       }
       return null;
     });
+  }
+
+  async createViewHistory(userId: number, productId: number): Promise<ViewUserHistory> {
+    try {
+      const viewHistory = await this.viewUserHistoryModel.create({
+        userId,
+        productId,
+        watchDate: new Date(),
+      });
+      return viewHistory;
+    } catch (error) {
+      throw new HttpException('Failed to create view history', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
   }
 
   async findByFilter(filters: ProductFilterDto): Promise<any> {
@@ -286,7 +329,16 @@ export class ProductsService {
       const products = await Product.findAll({
         where,
         include: [
-          { association: "category" },
+          {
+            model: CollectionModel,
+            attributes: ['collectionName', 'brandId'],
+            include: [
+              {
+                model: SpBrand,
+                attributes: ['brandName'],
+              }
+            ],
+          },
           {
             model: ProductSize,
             attributes: ["sizeId"],
@@ -329,7 +381,6 @@ export class ProductsService {
           ...product.get(),
           colors: product.colors.map(color => ({ id: color.colorId, color: color.color.color })),
           sizes: product.sizes.map(size => ({ id: size.sizeId, sizeName: size.size.sizeName })),
-          masonryTypes: product.masonries.map(masonry => ({ id: masonry.id, masonryType: masonry.masonry_name })),
           coating: product.coating ? { id: product.coating.id, coating_name: product.coating.coating_name } : null,
         })),
         minPrice,

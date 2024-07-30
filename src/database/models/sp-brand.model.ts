@@ -1,10 +1,10 @@
 import { Table, Column, Model, HasMany, DataType } from 'sequelize-typescript';
-import { Category } from './category.model';
 import { Product } from './product.model';
 import { SpMasonry } from './sp-masonry.model';
 import { SpSizeRate } from './sp-size-rate.model';
 import { SpColorPalitry } from './sp-color-palitry.model';
 import { spCoatingModel } from './sp-coating.model';
+import { CollectionModel } from './collection.model';
 
 @Table({ tableName: 'sp_brands' })
 export class SpBrand extends Model<SpBrand> {
@@ -13,9 +13,6 @@ export class SpBrand extends Model<SpBrand> {
 
   @Column({ type: DataType.STRING, allowNull: false })
   brandName: string;
-
-  @HasMany(() => Category)
-  categories: Category[];
 
   @HasMany(() => Product)
   products: Product[];
@@ -31,5 +28,8 @@ export class SpBrand extends Model<SpBrand> {
 
   @HasMany(() => SpColorPalitry)
   colors: SpColorPalitry[];
+
+  @HasMany(() => CollectionModel)
+  collections: CollectionModel[];
 
 }

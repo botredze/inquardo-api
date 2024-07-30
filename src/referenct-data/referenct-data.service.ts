@@ -1,5 +1,4 @@
 import { Product } from '../database/models/product.model';
-import { Category } from '../database/models/category.model';
 import { SpColorPalitry } from '../database/models/sp-color-palitry.model';
 import { SpBrand } from '../database/models/sp-brand.model';
 import { SpSizeRate } from '../database/models/sp-size-rate.model';
@@ -13,7 +12,6 @@ import { ProductStatus } from 'src/database/models/product-status.model';
 @Injectable()
 export class ReferenceDataService {
   constructor(
-    @InjectModel(Category) private readonly categoryModel: typeof Category,
     @InjectModel(SpColorPalitry) private readonly colorModel: typeof SpColorPalitry,
     @InjectModel(SpBrand) private readonly brandModel: typeof SpBrand,
     @InjectModel(SpSizeRate) private readonly sizeModel: typeof SpSizeRate,

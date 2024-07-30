@@ -10,10 +10,24 @@ import { FavoriteProductsModule } from "./favorites/favorite-products.module";
 import { TempUserModule } from './temp-user/temp-user.module';
 import { DadataModule } from './dadata/dadata.module';
 import { ElasticsearchModuleLocal } from './elasticsearch/search.module';
+import { ScheduleModule } from '@nestjs/schedule';
 
 
 @Module({
-  imports: [DatabaseModule, UsersModule, ProductsModule, ReferenceDataModule, ViewUserHistoryModule, BasketModule, S3Module, FavoriteProductsModule, TempUserModule, DadataModule, ElasticsearchModuleLocal],
+  imports: [DatabaseModule,
+    UsersModule,
+    ProductsModule,
+    ReferenceDataModule,
+    ViewUserHistoryModule,
+    BasketModule,
+    S3Module,
+    FavoriteProductsModule,
+    TempUserModule,
+    DadataModule,
+    ElasticsearchModuleLocal,
+    ScheduleModule.forRoot(),
+  ],
+
   controllers: [],
   providers: [],
 })

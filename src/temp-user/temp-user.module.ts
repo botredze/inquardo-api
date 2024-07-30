@@ -5,14 +5,17 @@ import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
 import { SequelizeModule } from '@nestjs/sequelize';
 import { User } from '../database/models/user.model';
+import { Basket } from '../database/models/basket.model';
+import { ViewUserHistory } from '../database/models/view-user-history.model';
+import { FavoriteProduct } from '../database/models/favorite.model';
 
 @Module({
   imports: [
-  SequelizeModule.forFeature([User]),
+  SequelizeModule.forFeature([User, Basket, ViewUserHistory, FavoriteProduct]),
     PassportModule,
     JwtModule.register({
       secret: 'Afina954120',
-      signOptions: { expiresIn: '5m' },
+      signOptions: { expiresIn: '3m' },
     }),
   ],
   providers: [TempUserService],

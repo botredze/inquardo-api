@@ -10,7 +10,7 @@ import {
   UseInterceptors,
   UploadedFiles, Req,
 } from '@nestjs/common';
-import { ApiBody, ApiConsumes, ApiOperation, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { ApiBody, ApiConsumes, ApiOperation, ApiQuery, ApiResponse, ApiTags } from '@nestjs/swagger';
 import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { Product } from '../database/models/product.model';
@@ -44,11 +44,11 @@ export class ProductsController {
 
   @ApiOperation({ summary: 'Get all products' })
   @ApiResponse({ status: 200, description: 'List of all products', type: [Product] })
+  @ApiQuery({ name: 'brandId', required: false, description: 'Filter products by brand ID', type: Number })
   @Get()
-  findAll() {
-    return this.productsService.findAll();
+  findAll(@Query('brandId') brandId?: number) {
+    return this.productsService.findAll(brandId);
   }
-
 
   @ApiOperation({ summary: 'Get a product by ID' })
   @ApiResponse({ status: 200, description: 'Product found', type: Product })

@@ -4,6 +4,7 @@ import { Product } from "../database/models/product.model";
 import { ApiTags, ApiParam, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { AddItemDto } from "../basket/dto/add-item.dto";
 import { Request } from 'express';
+import { count } from 'rxjs';
 
 @ApiTags('Favorites')
 @Controller('favorites')
@@ -14,7 +15,7 @@ export class FavoriteProductsController {
   async addToFavorites(@Req() req: Request, @Body() addItemDto: AddItemDto) {
     const authHeader = req.headers['authorization'];
     const userId = this.favoriteProductsService.decodeUserIdFromToken(authHeader);
-    return this.favoriteProductsService.addToFavorites(userId, addItemDto.productId, addItemDto.colorId, addItemDto.sizeId);
+    return this.favoriteProductsService.addToFavorites(userId, addItemDto.productId, addItemDto.colorId, addItemDto.sizeId, addItemDto.count);
   }
 
   @Delete(':productId')

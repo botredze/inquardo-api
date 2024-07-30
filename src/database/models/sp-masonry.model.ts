@@ -1,5 +1,6 @@
-import { Table, Column, Model, DataType, ForeignKey, BelongsTo } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasOne } from 'sequelize-typescript';
 import { SpBrand } from './sp-brand.model';
+import { Product } from './product.model';
 
 @Table({ tableName: 'sp_masonry' })
 export class SpMasonry extends Model<SpMasonry> {
@@ -15,4 +16,8 @@ export class SpMasonry extends Model<SpMasonry> {
 
   @BelongsTo(() => SpBrand)
   brand: SpBrand;
+
+  @HasOne(() => Product)
+  product: Product;
+
 }

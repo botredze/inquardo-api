@@ -1,14 +1,14 @@
-import { Table, Column, Model, ForeignKey, BelongsTo, HasMany, DataType } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany } from 'sequelize-typescript';
 import { SpBrand } from './sp-brand.model';
 import { Product } from './product.model';
 
-@Table({ tableName: 'categories' })
-export class Category extends Model<Category> {
+@Table({ tableName: 'collections' })
+export class CollectionModel extends Model<CollectionModel> {
   @Column({ type: DataType.INTEGER, autoIncrement: true, primaryKey: true })
   id: number;
 
   @Column({ type: DataType.STRING, allowNull: false })
-  categoryName: string;
+  collectionName: string;
 
   @ForeignKey(() => SpBrand)
   @Column({ type: DataType.INTEGER, allowNull: false })

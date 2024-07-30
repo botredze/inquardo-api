@@ -19,11 +19,11 @@ export class FavoriteProduct extends Model<FavoriteProduct> {
 
   @ForeignKey(() => ProductColor)
   @Column({ type: DataType.INTEGER, allowNull: true })
-  colorId?: number;
+  colorId: number;
 
   @ForeignKey(() => ProductSize)
   @Column({ type: DataType.INTEGER, allowNull: true })
-  sizeId?: number;
+  sizeId: number;
 
   @Column({ type: DataType.INTEGER, allowNull: true })
   count: number;

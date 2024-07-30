@@ -2,13 +2,13 @@ import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { ViewUserHistory } from '../database/models/view-user-history.model';
 import { Product } from '../database/models/product.model';
-import { Category } from '../database/models/category.model';
 import { SpBrand } from '../database/models/sp-brand.model';
 import { ProductPhoto } from '../database/models/product-photo.model';
 import { SpMasonry } from '../database/models/sp-masonry.model';
 import { ProductStatus } from '../database/models/product-status.model';
 import { spCoatingModel } from '../database/models/sp-coating.model';
 import { spTextureModel } from '../database/models/sp-texture.model';
+import { CollectionModel } from '../database/models/collection.model';
 
 @Injectable()
 export class ViewUserHistoryService {
@@ -32,8 +32,16 @@ export class ViewUserHistoryService {
         id: uniqueProductIds,
       },
       include: [
-        Category,
-        SpBrand,
+        {
+          model: CollectionModel,
+          attributes: ['collectionName', 'brandId'],
+          include: [
+            {
+              model: SpBrand,
+              attributes: ['brandName'],
+            }
+          ],
+        },
         ProductPhoto,
         spCoatingModel,
         SpMasonry,

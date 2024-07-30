@@ -1,4 +1,3 @@
-// sync.service.ts
 import { Injectable, OnModuleInit } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { ElasticsearchService } from '@nestjs/elasticsearch';
@@ -6,13 +5,13 @@ import { Product } from '../database/models/product.model';
 import { ProductColor } from '../database/models/product-color.model';
 import { spCoatingModel } from '../database/models/sp-coating.model';
 import { SpBrand } from '../database/models/sp-brand.model';
-import { Category } from '../database/models/category.model';
 import { ProductSize } from '../database/models/product-size.model';
 import { spTextureModel } from '../database/models/sp-texture.model';
 import { ProductStatus } from '../database/models/product-status.model';
 import { ProductPhoto } from '../database/models/product-photo.model';
 import { SpSizeRate } from '../database/models/sp-size-rate.model';
 import { SpColorPalitry } from '../database/models/sp-color-palitry.model';
+import { CollectionModel } from '../database/models/collection.model';
 
 @Injectable()
 export class SyncService implements OnModuleInit {
@@ -29,8 +28,16 @@ export class SyncService implements OnModuleInit {
   async syncProducts() {
     const products = await this.productModel.findAll({
       include: [
-        SpBrand,
-        Category,
+        {
+          model: CollectionModel,
+          attributes: ['collectionName', 'brandId'],
+          include: [
+            {
+              model: SpBrand,
+              attributes: ['brandName'],
+            }
+          ],
+        },
         {
           model: ProductColor,
           attributes: ["colorId"],
@@ -56,18 +63,16 @@ export class SyncService implements OnModuleInit {
     await this.elasticsearchService.bulk({ body });
   }
 
-
   serializeProduct(product: Product) {
     return {
       id: product.id,
-      productName: product.productName,
       price: product.price,
       oldPrice: product.oldPrice,
       discount: product.discount,
       discountActive: product.discountActive,
-      brand: product.brand ? {
-        id: product.brand.id,
-        name: product.brand.brandName,
+      collection: product.collection ? {
+        id: product.collection.id,
+        name: product.collection.collectionName
       } : null,
       coating: product.coating ? {
         id: product.coating.id,

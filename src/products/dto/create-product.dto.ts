@@ -34,13 +34,22 @@ export class CreateProductDto {
   position: number;
 
   @ApiProperty()
-  genderId: number;
-
-  @ApiProperty()
   brandId: number;
 
   @ApiProperty()
   categoryId: number;
+
+  @ApiProperty()
+  textureId: number;
+
+  @ApiProperty()
+  statusId: number;
+
+  @ApiProperty()
+  saleTypeId: number;
+
+  @ApiProperty()
+  coatingId: number;
 
   @ApiProperty({ type: [Number], description: 'Array of color IDs' })
   colors?: number[];
@@ -56,4 +65,8 @@ export class CreateProductDto {
 
   @ApiProperty({ type: [String], example: ['photo1.jpg', 'photo2.jpg'] })
   photos?: string[];
+
+  @ApiProperty({ type: [Number], description: 'Array of recommended product IDs' })
+  masonries: number[];
 }
+

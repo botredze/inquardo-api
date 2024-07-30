@@ -9,9 +9,6 @@ export class SpColorPalitry extends Model<SpColorPalitry> {
   @Column({ type: DataType.STRING, allowNull: false })
   color: string;
 
-  @Column({ type: DataType.STRING, allowNull: false })
-  colorName: string;
-
   @ForeignKey(() => SpBrand)
   @Column({ type: DataType.INTEGER, allowNull: false })
   brandId: number;
