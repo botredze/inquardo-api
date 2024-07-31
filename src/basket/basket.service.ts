@@ -12,7 +12,7 @@ export class BasketService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async addItemToBasket(userId: number, productId: number, colorId: number, sizeId: number): Promise<void> {
+  async addItemToBasket(userId: number, productId: number, colorId: number, sizeId: number, count: number): Promise<void> {
     try {
       let basket = await this.basketModel.findOne({ where: { userId } });
 
@@ -20,7 +20,7 @@ export class BasketService {
         basket = await this.basketModel.create({ userId });
       }
 
-      await this.basketItemModel.create({ basketId: basket.id, productId, colorId, sizeId });
+      await this.basketItemModel.create({ basketId: basket.id, productId, colorId, sizeId, count});
     } catch (error) {
       console.error('Error adding item to basket:', error);
       throw new InternalServerErrorException('Error adding item to basket');

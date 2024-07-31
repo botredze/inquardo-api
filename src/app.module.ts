@@ -11,6 +11,7 @@ import { TempUserModule } from './temp-user/temp-user.module';
 import { DadataModule } from './dadata/dadata.module';
 import { ElasticsearchModuleLocal } from './elasticsearch/search.module';
 import { ScheduleModule } from '@nestjs/schedule';
+import { OrderModule } from './order/order.module';
 
 
 @Module({
@@ -26,6 +27,7 @@ import { ScheduleModule } from '@nestjs/schedule';
     DadataModule,
     ElasticsearchModuleLocal,
     ScheduleModule.forRoot(),
+    OrderModule,
   ],
 
   controllers: [],

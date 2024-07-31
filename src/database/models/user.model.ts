@@ -5,6 +5,7 @@ import { Basket } from "./basket.model";
 import { ViewUserHistory } from "./view-user-history.model";
 import { FavoriteProduct } from "./favorite.model";
 import { Product } from "./product.model";
+import { Order } from './order.model';
 
 @Table
 export class User extends Model<User> {
@@ -44,6 +45,9 @@ export class User extends Model<User> {
 
   @HasMany(() => Basket)
   baskets: Basket[];
+
+  @HasMany(() => Order)
+  orders: Order[];
 
   @HasMany(() => ViewUserHistory)
   viewHistory: ViewUserHistory[];

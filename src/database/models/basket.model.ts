@@ -1,6 +1,7 @@
 import { Column, Model, Table, DataType, ForeignKey, BelongsTo, HasMany } from 'sequelize-typescript';
 import { User } from './user.model';
 import { BasketItem } from './basket-item.model';
+import { Order } from './order.model';
 
 @Table({ tableName: 'baskets' })
 export class Basket extends Model<Basket> {
@@ -16,4 +17,7 @@ export class Basket extends Model<Basket> {
 
   @HasMany(() => BasketItem)
   items: BasketItem[];
+
+  @HasMany(() => Order)
+  orders: Order[];
 }

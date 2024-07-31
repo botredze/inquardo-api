@@ -17,6 +17,9 @@ export class BasketItem extends Model<BasketItem> {
   @Column({ type: DataType.INTEGER, allowNull: false })
   basketId: number;
 
+  @Column({ type: DataType.INTEGER, allowNull: false })
+  count: number;
+
   @ForeignKey(() => ProductColor)
   @Column({ type: DataType.INTEGER, allowNull: false })
   colorId: number;
