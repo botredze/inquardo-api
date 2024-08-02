@@ -1,6 +1,7 @@
 import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasMany } from 'sequelize-typescript';
 import { User } from './user.model';
 import { OrderItem } from './order-item.model';
+import { Basket } from './basket.model';
 
 @Table({ tableName: 'orders' })
 export class Order extends Model<Order> {
@@ -10,6 +11,10 @@ export class Order extends Model<Order> {
   @ForeignKey(() => User)
   @Column({ type: DataType.INTEGER, allowNull: false })
   userId: number;
+
+  @ForeignKey(() => Basket)
+  @Column({ type: DataType.INTEGER, allowNull: false })
+  basketId: number;
 
   @Column({ type: DataType.DATE, allowNull: false, defaultValue: DataType.NOW })
   orderDate: Date;
@@ -22,6 +27,9 @@ export class Order extends Model<Order> {
 
   @BelongsTo(() => User)
   user: User;
+
+  @BelongsTo(() => Basket)
+  basket: Basket;
 
   @HasMany(() => OrderItem)
   items: OrderItem[];

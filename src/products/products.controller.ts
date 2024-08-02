@@ -67,6 +67,7 @@ export class ProductsController {
       }
       return product;
     } catch (error) {
+      console.log(error);
       throw new HttpException({
         statusCode: HttpStatus.INTERNAL_SERVER_ERROR,
         message: 'Internal server error',

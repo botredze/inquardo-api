@@ -27,7 +27,7 @@ export class BasketController {
     try {
       const authHeader = req.headers['authorization'];
       const userId = this.basketService.decodeUserIdFromToken(authHeader);
-      await this.basketService.addItemToBasket(userId, addItemDto.productId, addItemDto.colorId, addItemDto.sizeId);
+      await this.basketService.addItemToBasket(userId, addItemDto.productId, addItemDto.colorId, addItemDto.sizeId, addItemDto.count);
       return { message: 'Item added to basket successfully' };
     } catch (error) {
       console.error('Error adding item to basket:', error);

@@ -8,10 +8,11 @@ import { ProductColor } from "../database/models/product-color.model";
 import { ProductSize } from "../database/models/product-size.model";
 import { PassportModule } from '@nestjs/passport';
 import { JwtModule } from '@nestjs/jwt';
+import { Product } from '../database/models/product.model';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([Basket, BasketItem, ProductColor, ProductSize]),
+    SequelizeModule.forFeature([Basket, BasketItem, ProductColor, ProductSize, Product]),
     PassportModule,
     JwtModule.register({
       secret: 'Afina954120',

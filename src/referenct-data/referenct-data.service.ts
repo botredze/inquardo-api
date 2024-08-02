@@ -36,7 +36,7 @@ export class ReferenceDataService {
           required: false,
         },
       ],
-      group: ['SpBrand.id'],
+      group: ['SpBrand.id', 'SpBrand.brandName'],
     });
     return brands;
   }

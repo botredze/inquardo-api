@@ -26,18 +26,20 @@ export class TempUserService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async createOrLoginUser(authToken?:string): Promise<{ id: number, token: string }> {
+  async createOrLoginUser(authToken?: string): Promise<{ id: number, token: string }> {
     let userIdFromToken: number = null;
 
-    console.log(authToken, 'authToken');
-    if (authToken) {
+    if (authToken && authToken !== 'undefined') {
       try {
+        console.log(authToken);
         const decodedToken = this.jwtService.verify(authToken);
+        console.log(decodedToken, 'decodedToken');
         userIdFromToken = decodedToken.sub;
       } catch (err) {
-        throw new Error('Invalid token');
+        console.warn('Invalid token, creating new user');
       }
     }
+
     if (userIdFromToken) {
       const user = await this.userModel.findByPk(userIdFromToken);
       if (user) {
@@ -45,19 +47,20 @@ export class TempUserService {
       } else {
         throw new Error('User not found');
       }
-    } else {
-      const generatedPhone = this.generateRandomPhoneNumber();
-      const generatedOtp = this.generateRandomOtp();
-      const expiresAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
-
-      const user = await this.userModel.create({ phone: generatedPhone, otp: generatedOtp, expiresAt });
-
-      const payload = { sub: user.id };
-      const token = this.jwtService.sign(payload);
-
-      return { id: user.id, token };
     }
+
+    const generatedPhone = this.generateRandomPhoneNumber();
+    const generatedOtp = this.generateRandomOtp();
+    const expiresAt = new Date(Date.now() + 3 * 24 * 60 * 60 * 1000);
+
+    const user = await this.userModel.create({ phone: generatedPhone, otp: generatedOtp, expiresAt });
+
+    const payload = { sub: user.id };
+    const token = this.jwtService.sign(payload);
+
+    return { id: user.id, token };
   }
+
 
   @Cron(CronExpression.EVERY_DAY_AT_1AM)
   async cleanExpiredUsers(): Promise<void> {

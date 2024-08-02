@@ -136,6 +136,7 @@ export class ProductsService {
   async findAll(brandId?: number) {
     return this.productModel.findAll({
       include: [
+        ProductPhoto,
         {
           model: CollectionModel,
           attributes: ['collectionName', 'brandId'],
@@ -148,10 +149,6 @@ export class ProductsService {
           where: brandId ? { brandId } : undefined,
         },
         {
-          model: ProductPhoto,
-          attributes: ['photoUrl'],
-        },
-        {
           model: spCoatingModel,
           attributes: ['coating_name'],
         },
@@ -161,7 +158,7 @@ export class ProductsService {
         },
         {
           model: spTextureModel,
-          attributes: ['textureName'],
+          attributes: ['texture_name'],
         },
         {
           model: ProductStatus,
@@ -181,81 +178,85 @@ export class ProductsService {
   }
 
   async findOne(id: number, userId?: number) {
-    return this.productModel.findByPk(id, {
-      include: [
-        {
-          model: CollectionModel,
-          attributes: ['collectionName', 'brandId'],
-          include: [
-            {
-              model: SpBrand,
-              attributes: [['brandName', 'productName']],
-            }
-          ],
-        },
-        {
-          model: ProductColor,
-          attributes: ["colorId"],
-          include: [{ model: SpColorPalitry, attributes: ["id", "color"] }]
-        },
-        {
-          model: ProductSize,
-          attributes: ["sizeId"],
-          include: [{ model: SpSizeRate, attributes: ["id", "sizeName"] }]
-        },
-        {
-          model: ProductRecommendation,
-          include: [
-            {
-              model: Product,
-              as: "recommendedProduct",
-              include: [
-                ProductPhoto
-              ]
-            }
-          ]
-        },
-        ProductPhoto,
-        spTextureModel,
-        ProductStatus,
-        {
-          model: spCoatingModel,
-          attributes: ["id", "coating_name"]
-        },
-        {
-          model: SpMasonry,
-          through: { attributes: [] },
-          attributes: ["id", "masonry_name"]
-        },
-        {
-          model: SpSaleTypeModel,
-          attributes: ["id", "type"]
-        }
-      ]
-    }).then(async product => {
-      if (product) {
-        if (userId) {
-          await this.createViewHistory(userId, id);
-        }
-
-        return {
-          ...product.get(),
-          collection: {
-            ...product.collection.get(),
-            brandName: product.collection?.brand?.brandName
+    try {
+      return this.productModel.findByPk(id, {
+        include: [
+          {
+            model: CollectionModel,
+            attributes: ['collectionName', 'brandId'],
+            include: [
+              {
+                model: SpBrand,
+                attributes: [['brandName', 'productName']],
+              }
+            ],
           },
-          colors: product.colors.map(color => ({ id: color.colorId, color: color.color.color })),
-          sizes: product.sizes.map(size => ({ id: size.sizeId, sizeName: size.size.sizeName })),
-          recommendations: product.recommendations.map(rec => ({
-            ...rec.recommendedProduct.get(),
-            photos: rec.recommendedProduct.photos
-          })),
-          coating: product.coating ? { id: product.coating.id, type: product.coating.coating_name } : null,
-          saleType: product.saleType ? { id: product.saleType.id, type: product.saleType.type } : null
-        };
-      }
-      return null;
-    });
+          {
+            model: ProductColor,
+            attributes: ["colorId"],
+            include: [{ model: SpColorPalitry, attributes: ["id", "color"] }]
+          },
+          {
+            model: ProductSize,
+            attributes: ["sizeId"],
+            include: [{ model: SpSizeRate, attributes: ["id", "sizeName"] }]
+          },
+          {
+            model: ProductRecommendation,
+            include: [
+              {
+                model: Product,
+                as: "recommendedProduct",
+                include: [
+                  ProductPhoto
+                ]
+              }
+            ]
+          },
+          ProductPhoto,
+          spTextureModel,
+          ProductStatus,
+          {
+            model: spCoatingModel,
+            attributes: ["id", "coating_name"]
+          },
+          {
+            model: SpMasonry,
+            attributes: ["id", "masonry_name"]
+          },
+          {
+            model: SpSaleTypeModel,
+            attributes: ["id", "type"]
+          }
+        ]
+      }).then(async product => {
+        if (product) {
+          if (userId) {
+            await this.createViewHistory(userId, id);
+          }
+
+          return {
+            ...product.get(),
+            collection: {
+              ...product.collection.get(),
+              brandName: product.collection?.brand?.brandName
+            },
+            colors: product.colors.map(color => ({ id: color.colorId, color: color.color.color })),
+            sizes: product.sizes.map(size => ({ id: size.sizeId, sizeName: size.size.sizeName })),
+            recommendations: product.recommendations.map(rec => ({
+              ...rec.recommendedProduct.get(),
+              photos: rec.recommendedProduct.photos
+            })),
+            coating: product.coating ? { id: product.coating.id, type: product.coating.coating_name } : null,
+            saleType: product.saleType ? { id: product.saleType.id, type: product.saleType.type } : null
+          };
+        }
+        return null;
+      });
+    }catch (error) {
+      console.log(error);
+      throw error;
+    }
   }
 
   async createViewHistory(userId: number, productId: number): Promise<ViewUserHistory> {

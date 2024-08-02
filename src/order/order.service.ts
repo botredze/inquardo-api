@@ -79,8 +79,8 @@ export class OrderService {
     const mailOptions = {
       from: process.env.EMAIL_USER,
       to,
-      subject: 'Your Order Confirmation',
-      text: `Thank you for your order!\nOrder ID: ${orderId}\nTotal Price: ${totalPrice}`,
+      subject: 'Ваш заказ подтвержден',
+      text: `Спасибо за ваш заказ, в скором времени с вами свяжется менеджер!\n Order ID: ${orderId}\n Total Price: ${totalPrice}`,
     };
 
     await transporter.sendMail(mailOptions);

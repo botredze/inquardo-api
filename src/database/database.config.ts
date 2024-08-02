@@ -25,6 +25,8 @@ import { SpSaleTypeModel } from './models/sp-sale-type.model';
 import { spTextureModel } from './models/sp-texture.model';
 import { ProductStatus } from './models/product-status.model';
 import { CollectionModel } from './models/collection.model';
+import { Order } from './models/order.model';
+import { OrderItem } from './models/order-item.model';
 
 @Module({
   imports: [
@@ -44,8 +46,8 @@ import { CollectionModel } from './models/collection.model';
           ca: fs.readFileSync(path.resolve(__dirname, '..', '..', 'ca-certificate.crt')).toString(),
         },
       },
-      autoLoadModels: true,
-      synchronize: true,
+      // autoLoadModels: true,
+      // synchronize: true,
       models: [Product,
         CollectionModel,
         SpBrand,
@@ -67,7 +69,10 @@ import { CollectionModel } from './models/collection.model';
         SpMasonry,
         SpSaleTypeModel,
         spTextureModel,
-        ProductStatus],
+        ProductStatus,
+        Order,
+        OrderItem
+      ],
     }),
   ],
 })

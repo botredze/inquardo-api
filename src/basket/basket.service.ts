@@ -3,6 +3,10 @@ import { Basket } from "../database/models/basket.model";
 import { BasketItem } from "../database/models/basket-item.model";
 import { InjectModel } from "@nestjs/sequelize";
 import { JwtService } from '@nestjs/jwt';
+import { Product } from '../database/models/product.model';
+import { ProductColor } from '../database/models/product-color.model';
+import { ProductSize } from '../database/models/product-size.model';
+import { SpBrand } from '../database/models/sp-brand.model';
 
 @Injectable()
 export class BasketService {
@@ -27,9 +31,24 @@ export class BasketService {
     }
   }
 
-  async getUserBasket(userId: number): Promise<Basket | null> {
-    const basket = await this.basketModel.findOne({ where: { userId }, include: [BasketItem] });
-    return basket || null;
+  async getUserBasket(userId: number): Promise<any> {
+    try {
+      const basket = await this.basketModel.findAll(
+      //   {
+      //   where: { userId },
+      //   attributes: ['id', 'userId'],
+      //   include: [
+      //     {
+      //       model: BasketItem,
+      //     },
+      //   ],
+      // }
+      );
+      return basket || null;
+    } catch (error) {
+      console.error('Error getting user basket:', error);
+      throw error;
+    }
   }
 
   async removeItemFromBasket(userId: number, itemId: number): Promise<void> {
