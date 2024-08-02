@@ -38,7 +38,7 @@ export class ViewUserHistoryService {
           include: [
             {
               model: SpBrand,
-              attributes: ['brandName'],
+              attributes: [['brandName', 'productName']],
             }
           ],
         },

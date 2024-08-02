@@ -45,9 +45,9 @@ export class FavoriteProductsService {
           include: [
             {
               model: SpBrand,
-              attributes: ['brandName'],
+              attributes: [['brandName', 'productName']],
             }
-          ],
+          ]
         },
         {
           model: ProductColor,

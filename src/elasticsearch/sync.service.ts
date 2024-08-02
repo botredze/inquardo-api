@@ -34,7 +34,7 @@ export class SyncService implements OnModuleInit {
           include: [
             {
               model: SpBrand,
-              attributes: ['brandName'],
+              attributes: [['brandName', 'productName']],
             }
           ],
         },

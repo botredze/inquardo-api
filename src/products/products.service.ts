@@ -142,7 +142,7 @@ export class ProductsService {
           include: [
             {
               model: SpBrand,
-              attributes: ['brandName'],
+              attributes: [['brandName', 'productName']],
             }
           ],
           where: brandId ? { brandId } : undefined,
@@ -189,7 +189,7 @@ export class ProductsService {
           include: [
             {
               model: SpBrand,
-              attributes: ['brandName'],
+              attributes: [['brandName', 'productName']],
             }
           ],
         },
@@ -335,7 +335,7 @@ export class ProductsService {
             include: [
               {
                 model: SpBrand,
-                attributes: ['brandName'],
+                attributes: [['brandName', 'productName']],
               }
             ],
           },
