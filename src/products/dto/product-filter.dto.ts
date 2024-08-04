@@ -13,7 +13,7 @@ export class ProductFilterDto {
   price?: PriceDto;
   size?: number;
   status?: number[];
-  texture?: number[];s
+  texture?: number[];
   sorting?: number;
   brandId: number;
 }
