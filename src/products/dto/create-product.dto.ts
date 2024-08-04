@@ -1,72 +1,53 @@
-import { ApiProperty } from '@nestjs/swagger';
-import { IsString, IsNumber, IsBoolean, IsNotEmpty, IsArray, ValidateNested, IsOptional } from 'class-validator';
+import { IsString, IsNumber, IsArray, ValidateNested } from 'class-validator';
 import { Type } from 'class-transformer';
-import { STRING } from "sequelize";
 
-class CreateProductDetailsDto {
-  @ApiProperty()
-  description: string;
+class ProductItemDto {
+  @IsString()
+  readonly name: string;
 
-  @ApiProperty()
-  material: string;
+  @IsString()
+  readonly status: string;
 
-  @ApiProperty()
-  country: string;
+  @IsString()
+  readonly mansory: string;
+
+  @IsString()
+  readonly coating: string;
+
+  @IsString()
+  readonly texture: string;
+
+  @IsString()
+  readonly facture: string;
+
+  @IsString()
+  readonly size: string;
+
+  @IsString()
+  readonly color: string;
+
+  @IsString()
+  readonly country: string;
+
+  @IsString()
+  readonly price: string;
+
+  @IsString()
+  readonly type: string;
+
+  @IsString()
+  readonly komplect: string;
+
+  @IsString()
+  readonly articles: string;
 }
 
-export class CreateProductDto {
-  @ApiProperty()
-  productName: string;
+export class CreateProductsDto {
+  @IsArray()
+  @ValidateNested({ each: true })
+  @Type(() => ProductItemDto)
+  readonly data: ProductItemDto[];
 
-  @ApiProperty()
-  price: number;
-
-  @ApiProperty()
-  oldPrice: number;
-
-  @ApiProperty()
-  discount: number;
-
-  @ApiProperty()
-  discountActive: boolean;
-
-  @ApiProperty()
-  position: number;
-
-  @ApiProperty()
-  brandId: number;
-
-  @ApiProperty()
-  categoryId: number;
-
-  @ApiProperty()
-  textureId: number;
-
-  @ApiProperty()
-  statusId: number;
-
-  @ApiProperty()
-  saleTypeId: number;
-
-  @ApiProperty()
-  coatingId: number;
-
-  @ApiProperty({ type: [Number], description: 'Array of color IDs' })
-  colors?: number[];
-
-  @ApiProperty({ type: [Number], description: 'Array of size IDs' })
-  sizes?: number[];
-
-  @ApiProperty({ type: [Number], description: 'Array of recommended product IDs' })
-  recommendations?: number[];
-
-  @ApiProperty({ type: CreateProductDetailsDto, description: 'Product details' })
-  details: CreateProductDetailsDto;
-
-  @ApiProperty({ type: [String], example: ['photo1.jpg', 'photo2.jpg'] })
-  photos?: string[];
-
-  @ApiProperty({ type: [Number], description: 'Array of recommended product IDs' })
-  masonries: number[];
+  @IsNumber()
+  readonly brandId: number;
 }
-

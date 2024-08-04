@@ -17,6 +17,10 @@ import { ViewUserHistory } from '../database/models/view-user-history.model';
 import { spTextureModel } from '../database/models/sp-texture.model';
 import { ProductStatus } from '../database/models/product-status.model';
 import { CollectionModel } from '../database/models/collection.model';
+import { SpSaleTypeModel } from 'src/database/models/sp-sale-type.model';
+import { SpColorPalitry } from 'src/database/models/sp-color-palitry.model';
+import { SpSizeRate } from 'src/database/models/sp-size-rate.model';
+import { SpFactureModel } from 'src/database/models/sp_facture.model';
 
 
 @Module({
@@ -33,7 +37,11 @@ import { CollectionModel } from '../database/models/collection.model';
       ViewUserHistory,
       spTextureModel,
       ProductStatus,
-      CollectionModel
+      CollectionModel,
+      SpSaleTypeModel,
+      SpColorPalitry,
+      SpSizeRate,
+      SpFactureModel
     ]),
     PassportModule,
     JwtModule.register({

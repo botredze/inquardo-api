@@ -19,7 +19,7 @@ export class ReferenceDataService {
     @InjectModel(spCoatingModel) private readonly coatingModel: typeof spCoatingModel,
     @InjectModel(SpMasonry) private readonly masonryModel: typeof SpMasonry,
     @InjectModel(spTextureModel) private readonly textureModel: typeof spTextureModel,
-    @InjectModel(ProductStatus) private readonly statusModel: typeof ProductStatus
+    @InjectModel(ProductStatus) private readonly statusModel: typeof ProductStatus,
   ) {}
 
   async findAllBrands() {
@@ -43,20 +43,27 @@ export class ReferenceDataService {
 
   async findAllDataForBrand(brandId: number) {
     console.log(brandId);
+  
     const colors = await this.colorModel.findAll({ where: { brandId } });
     const sizes = await this.sizeModel.findAll({ where: { brandId } });
     const coatings = await this.coatingModel.findAll({ where: { brandId } });
     const masonryTypes = await this.masonryModel.findAll({ where: { brandId } });
     const texture = await this.textureModel.findAll();
     const status = await this.statusModel.findAll();
-
+  
+    const minPrice = await this.productModel.min('price', { where: { brandId } });
+    const maxPrice = await this.productModel.max('price', { where: { brandId } });
+  
     return {
       colors,
       sizes,
       coatings,
       masonryTypes,
       texture,
-      status
+      status,
+      minPrice,
+      maxPrice
     };
   }
+  
 }

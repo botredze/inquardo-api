@@ -15,6 +15,7 @@ import { spTextureModel } from './sp-texture.model';
 import { ProductStatus } from './product-status.model';
 import { CollectionModel } from './collection.model';
 import { FavoriteProduct } from './favorite.model';
+import { SpFactureModel } from './sp_facture.model';
 
 @Table({ tableName: 'products' })
 export class Product extends Model<Product> {
@@ -60,6 +61,10 @@ export class Product extends Model<Product> {
   @ForeignKey(() => SpSaleTypeModel)
   @Column({ type: DataType.INTEGER, allowNull: false })
   saleTypeId: number;
+
+  @ForeignKey(() => SpFactureModel)
+  @Column({ type: DataType.INTEGER, allowNull: true }) 
+  factureId: number;
 
   @ForeignKey(() => spTextureModel)
   @Column({ type: DataType.INTEGER, allowNull: true })
@@ -117,4 +122,7 @@ export class Product extends Model<Product> {
 
   @BelongsTo(() => ProductStatus)
   productStatus: ProductStatus;
+
+  @BelongsTo( ()=> SpFactureModel)
+  facture: SpFactureModel
 }

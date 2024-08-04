@@ -4,7 +4,6 @@ import { Product } from "../database/models/product.model";
 import { ApiTags, ApiParam, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
 import { AddItemDto } from "../basket/dto/add-item.dto";
 import { Request } from 'express';
-import { count } from 'rxjs';
 
 @ApiTags('Favorites')
 @Controller('favorites')

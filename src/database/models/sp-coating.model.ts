@@ -6,8 +6,8 @@ export class spCoatingModel extends Model<spCoatingModel> {
   @Column({ type: DataType.INTEGER, autoIncrement: true, primaryKey: true })
   id: number;
 
-  @Column({ type: DataType.STRING, allowNull: false })
-  coating_name: string;
+  @Column({ type: DataType.STRING, allowNull: false})
+  coating_name: string; 
 
   @ForeignKey(() => SpBrand)
   @Column({ type: DataType.INTEGER, allowNull: false })
