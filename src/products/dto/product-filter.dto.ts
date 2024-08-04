@@ -3,16 +3,17 @@ import { ApiProperty } from '@nestjs/swagger';
 
 
 export class PriceDto {
-  min: number;
-  max: number;
+  min?: number;
+  max?: number;
 }
 export class ProductFilterDto {
-  coating: number[];
-  color: number[];
-  kladka: number[];
-  price: PriceDto;
-  size: number;
-  status: number[];
-  texture: number[];
-  sorting: number;
+  coating?: number[];
+  color?: number[];
+  kladka?: number[];
+  price?: PriceDto;
+  size?: number;
+  status?: number[];
+  texture?: number[];s
+  sorting?: number;
+  brandId: number;
 }

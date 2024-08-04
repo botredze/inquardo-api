@@ -17,6 +17,7 @@ import { Product } from '../database/models/product.model';
 import { ErrorResponseDto } from './dto/error-response.dto';
 import { FilesInterceptor } from "@nestjs/platform-express";
 import { JwtService } from '@nestjs/jwt';
+import { ProductFilterDto } from './dto/product-filter.dto';
 
 @ApiTags('products')
 @Controller('products')
@@ -29,12 +30,9 @@ export class ProductsController {
     return this.productsService.createProducts(data, brandId);
   }
 
-  @ApiOperation({ summary: 'Get all products' })
-  @ApiResponse({ status: 200, description: 'List of all products', type: [Product] })
-  @ApiQuery({ name: 'brandId', required: false, description: 'Filter products by brand ID', type: Number })
-  @Get()
-  findAll(@Query('brandId') brandId?: number) {
-    return this.productsService.findAll(brandId);
+  @Post()
+  findAll(@Body() filters: ProductFilterDto) {
+    return this.productsService.findByFilter(filters);
   }
 
   @ApiOperation({ summary: 'Get a product by ID' })
