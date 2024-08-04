@@ -23,7 +23,7 @@ export class FavoriteProductsService {
 
   async addToFavorites(userId: number, productId: number, colorId: number, sizeId: number, count: number) {
     try {
-      const fav = await this.favoriteProductModel.create({ userId, productId, colorId, sizeId, count })
+      const fav = await this.favoriteProductModel.create({ userId, productId, colorId: productId, sizeId: productId, count })
       return { sub: fav.id };
     } catch (error) {
       console.log(error);
