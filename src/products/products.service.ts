@@ -247,8 +247,8 @@ async createProducts(data: any[], brandId: number) {
 
   async findByFilter(filters: ProductFilterDto): Promise<any> {
     try {
-      console.log(filters, 'filters')
-      const { coating, color, kladka, price, size, status, texture, sorting, brandId} = filters;
+      console.log(filters, 'filters');
+      const { coating, color, kladka, price, size, status, texture, sorting, brandId } = filters;
   
       const where: any = {};
   
@@ -274,16 +274,16 @@ async createProducts(data: any[], brandId: number) {
         }
       }
   
-      if (size !== undefined) {
-        where["$sizes.sizeId$"] = size;
-      }
+      // if (size !== undefined && size !== 0 && size) {
+      //   where["$sizes.sizeId$"] = {[Op.in]: size};
+      // }
   
-      if (status && status.length > 0) {
-        where.status = { [Op.in]: status };
-      }
+      // if (status && status.length > 0) {
+      //   where.status = { [Op.in]: status };
+      // }
   
       if (texture && texture.length > 0) {
-        where.texture = { [Op.in]: texture };
+        where["$texture.id$"] = { [Op.in]: texture };
       }
   
       let sortCriteria = [];
@@ -303,10 +303,20 @@ async createProducts(data: any[], brandId: number) {
         }
       }
   
+      console.log('where', where)
       const products = await Product.findAll({
         where,
         include: [
-          ProductPhoto,
+          {
+            model: ProductSize,
+            attributes: ["sizeId"],
+            include: [{ model: SpSizeRate, attributes: ["id", "sizeName"] }]
+          },
+          {
+            model: ProductColor,
+            attributes: ["colorId"],
+            include: [{ model: SpColorPalitry, attributes: ["id", "color"] }]
+          },
           {
             model: CollectionModel,
             attributes: ['collectionName', 'brandId'],
@@ -319,25 +329,29 @@ async createProducts(data: any[], brandId: number) {
             where: brandId ? { brandId } : undefined,
           },
           {
-            model: spCoatingModel,
-            attributes: ['coating_name'],
-          },
-          {
-            model: SpMasonry,
-            attributes: ['masonry_name'],
+            model: SpSaleTypeModel,
+            attributes: ["id", "type"]
           },
           {
             model: spTextureModel,
-            attributes: ['texture_name'],
+            attributes: ["id", "texture_name"]
           },
           {
             model: ProductStatus,
-            attributes: ['status'],
+            attributes: ["id", "status"]
+          },
+          {
+            model: spCoatingModel,
+            attributes: ["id", "coating_name"]
+          },
+          {
+            model: SpMasonry,
+            attributes: ["id", "masonry_name"]
           }
         ],
         order: sortCriteria
-      });      
-
+      });
+  
       const prices = await Product.findAll({
         attributes: [
           [Sequelize.fn("MIN", Sequelize.col("price")), "minPrice"],
@@ -348,13 +362,13 @@ async createProducts(data: any[], brandId: number) {
       const minPrice = prices[0].get("minPrice");
       const maxPrice = prices[0].get("maxPrice");
   
-      const result =  products.map(product => ({
-          ...product.get(),
-          collection: {
-            ...product.collection.get(),
-            brandName: product.collection.brand.brandName
-          }
-        }))
+      const result = products.map(product => ({
+        ...product.get(),
+        collection: {
+          ...product.collection.get(),
+          brandName: product.collection.brand.brandName
+        }
+      }));
   
       return result;
   
@@ -363,5 +377,6 @@ async createProducts(data: any[], brandId: number) {
       throw new HttpException("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+  
 }
 
