@@ -59,8 +59,8 @@ export class BasketService {
                       {
                         model: SpBrand,
                         attributes: [['brandName', 'productName']],
-                      }
-                    ]
+                      },
+                    ],
                   },
                   {
                     model: ProductColor,
@@ -83,49 +83,74 @@ export class BasketService {
           },
         ],
       });
-
+  
       if (basket) {
         const basketItems = await Promise.all(
           basket.items.map(async (item) => {
             const product = item.product;
-
+  
             return {
-              ...item.get(),
-              product: {
-                ...product.get(),
-                colors: product.colors.map((color) => ({
-                  id: color.colorId,
-                  color: color.color.color,
-                })),
-                collection: {
-                  ...product.collection.get(),
-                  brandName: product.collection.brand.brandName,
+              id: item.id,
+              productId: item.productId,
+              price: product.price,
+              oldPrice: product.oldPrice,
+              discount: product.discount,
+              discountActive: product.discountActive,
+              material: product.material,
+              country: product.country,
+              articul: product.articul,
+              complect: product.complect,
+              collectionId: product.collectionId,
+              brandId: product.brandId,
+              coatingId: product.coatingId,
+              saleTypeId: product.saleTypeId,
+              factureId: product.factureId,
+              textureId: product.textureId,
+              masonryId: product.masonryId,
+              statusId: product.statusId,
+              createdAt: product.createdAt,
+              updatedAt: product.updatedAt,
+              count: item.count,
+              collection: {
+                collectionName: product.collection.collectionName,
+                brandId: product.collection.brandId,
+                brand: {
+                  productName: product.collection.brand.brandName,
                 },
-                sizes: product.sizes.map((size) => ({
-                  id: size.sizeId,
-                  sizeName: size.size.sizeName,
-                })),
-                saleType: product.saleType
-                  ? { id: product.saleType.id, type: product.saleType.type }
-                  : null,
               },
+              colors: product.colors.map((color) => ({
+                id: color.colorId,
+                color: color.color.color,
+              })),
+              sizes: product.sizes.map((size) => ({
+                id: size.sizeId,
+                sizeName: size.size.sizeName,
+              })),
+              photos: product.photos.map((photo) => ({
+                id: photo.id,
+                productId: photo.productId,
+                url: photo.url,
+                main: photo.main,
+                interier: photo.interier,
+                createdAt: photo.createdAt,
+                updatedAt: photo.updatedAt,
+              })),
+              saleType: product.saleType
+                ? { id: product.saleType.id, type: product.saleType.type }
+                : null,
             };
           })
         );
-
-        return {
-          id: basket.id,
-          userId: basket.userId,
-          items: basketItems,
-        };
+  
+        return basketItems;
       }
-
+  
       return null;
     } catch (error) {
       console.error('Error getting user basket:', error);
       throw new InternalServerErrorException('Error getting user basket');
     }
-  }
+  }  
 
   async removeItemFromBasket(userId: number, itemId: number): Promise<void> {
     try {
