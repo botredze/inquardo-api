@@ -21,9 +21,11 @@ export class FavoriteProductsService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async addToFavorites(userId: number, productId: number, colorId: number, sizeId: number, count: number) {
+  async addToFavorites(userId: number, product) {
+    const {id} = product
+    const productId = id
     try {
-      const fav = await this.favoriteProductModel.create({ userId, productId, colorId: productId, sizeId: productId, count })
+      const fav = await this.favoriteProductModel.create({ userId, productId, colorId: productId, sizeId: productId, count: 1 })
       return { sub: fav.id };
     } catch (error) {
       console.log(error);

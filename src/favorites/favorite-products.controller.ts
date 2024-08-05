@@ -11,10 +11,10 @@ export class FavoriteProductsController {
   constructor(private favoriteProductsService: FavoriteProductsService) {}
 
   @Post()
-  async addToFavorites(@Req() req: Request, @Body() addItemDto: AddItemDto) {
+  async addToFavorites(@Req() req: Request, @Body() product) {
     const authHeader = req.headers['authorization'];
     const userId = this.favoriteProductsService.decodeUserIdFromToken(authHeader);
-    return this.favoriteProductsService.addToFavorites(userId, addItemDto.productId, addItemDto.colorId, addItemDto.sizeId, addItemDto.count);
+    return this.favoriteProductsService.addToFavorites(userId, product);
   }
 
   @Delete(':productId')

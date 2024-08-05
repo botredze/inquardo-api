@@ -21,7 +21,9 @@ export class BasketService {
     private readonly jwtService: JwtService,
   ) {}
 
-  async addItemToBasket(userId: number, productId: number, colorId: number, sizeId: number, count: number): Promise<number> {
+  async addItemToBasket( userId: number ,product): Promise<number> {
+    const {id} = product;
+    const productId = id
     try {
       let basket = await this.basketModel.findOne({ where: { userId } });
 
@@ -29,7 +31,7 @@ export class BasketService {
         basket = await this.basketModel.create({ userId });
       }
 
-      const basketItem = await this.basketItemModel.create({ basketId: basket.id, productId, colorId: productId, sizeId: productId, count });
+      const basketItem = await this.basketItemModel.create({ basketId: basket.id, productId, colorId: productId, sizeId: productId, count: 1 });
       
       return basketItem.id; 
     } catch (error) {
