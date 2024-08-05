@@ -23,12 +23,13 @@ export class BasketController {
   }
 
   @Post('addItem')
-  async addItemToBasket(@Req() req: Request, @Body() addItemDto: AddItemDto): Promise<any> {
+  async addItemToBasket(@Req() req: Request, @Body() addItemDto: AddItemDto): Promise<{ itemId: number }> {
     try {
       const authHeader = req.headers['authorization'];
       const userId = this.basketService.decodeUserIdFromToken(authHeader);
-      await this.basketService.addItemToBasket(userId, addItemDto.productId, addItemDto.colorId, addItemDto.sizeId, addItemDto.count);
-      return { message: 'Item added to basket successfully' };
+      const itemId = await this.basketService.addItemToBasket(userId, addItemDto.productId, addItemDto.colorId, addItemDto.sizeId, addItemDto.count);
+      
+      return { itemId }; 
     } catch (error) {
       console.error('Error adding item to basket:', error);
       throw HttpStatus.INTERNAL_SERVER_ERROR;

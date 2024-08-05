@@ -1,4 +1,4 @@
-import { Injectable } from '@nestjs/common';
+import { Injectable, NotFoundException } from '@nestjs/common';
 import { InjectModel } from '@nestjs/sequelize';
 import { Product } from '../database/models/product.model';
 import { FavoriteProduct } from "../database/models/favorite.model";
@@ -120,5 +120,20 @@ export class FavoriteProductsService {
     const token = authHeader.replace('Bearer ', '');
     const decodedToken = this.jwtService.decode(token) as { sub: number };
     return decodedToken.sub;
+  }
+
+  async updateFavoriteCount(userId: number, productId: number, typeCounter: number): Promise<FavoriteProduct> {
+    const favorite = await this.favoriteProductModel.findOne({
+      where: { userId, productId },
+    });
+
+    if (!favorite) {
+      throw new NotFoundException('Favorite product not found');
+    }
+
+    favorite.count = typeCounter === 1 ? favorite.count + 1 : favorite.count - 1;
+
+    await favorite.save();
+    return favorite;
   }
 }

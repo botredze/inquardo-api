@@ -307,6 +307,7 @@ async createProducts(data: any[], brandId: number) {
       const products = await Product.findAll({
         where,
         include: [
+          ProductPhoto,
           {
             model: ProductSize,
             attributes: ["sizeId"],
@@ -347,7 +348,7 @@ async createProducts(data: any[], brandId: number) {
           {
             model: SpMasonry,
             attributes: ["id", "masonry_name"]
-          }
+          },
         ],
         order: sortCriteria
       });

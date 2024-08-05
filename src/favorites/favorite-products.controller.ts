@@ -30,4 +30,18 @@ export class FavoriteProductsController {
     const userId = this.favoriteProductsService.decodeUserIdFromToken(authHeader);
     return this.favoriteProductsService.getFavoritesByUserId(userId);
   }
+
+
+  @Post('counter-favourite')
+  async counterFavourite(
+    @Body() body: { typeCounter: number; id: number },
+    @Req() req: Request
+  ) {
+    const authHeader = req.headers['authorization'];
+    const userId = this.favoriteProductsService.decodeUserIdFromToken(authHeader);
+    const { typeCounter, id: productId } = body;
+
+    return this.favoriteProductsService.updateFavoriteCount(userId, productId, typeCounter);
+  }
+
 }
