@@ -125,14 +125,17 @@ export class FavoriteProductsService {
   }
 
   async updateFavoriteCount(userId: number, productId: number, typeCounter: number): Promise<FavoriteProduct> {
+    console.log(userId, productId );
     const favorite = await this.favoriteProductModel.findOne({
       where: { userId, productId },
     });
 
+    console.log(!favorite);
     if (!favorite) {
       throw new NotFoundException('Favorite product not found');
     }
 
+    console.log(favorite);
     favorite.count = typeCounter === 1 ? favorite.count + 1 : favorite.count - 1;
 
     await favorite.save();

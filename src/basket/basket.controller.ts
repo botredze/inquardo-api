@@ -28,8 +28,8 @@ export class BasketController {
       const authHeader = req.headers['authorization'];
       const userId = this.basketService.decodeUserIdFromToken(authHeader);
       const itemId = await this.basketService.addItemToBasket(userId, product );
-      
-      return { itemId }; 
+
+      return { itemId };
     } catch (error) {
       console.error('Error adding item to basket:', error);
       throw HttpStatus.INTERNAL_SERVER_ERROR;
@@ -47,5 +47,17 @@ export class BasketController {
       console.error('Error removing item from basket:', error);
       throw HttpStatus.INTERNAL_SERVER_ERROR;
     }
+  }
+
+  @Post('counter-basket')
+  async counterFavourite(
+    @Body() body: { typeCounter: number; id: number },
+    @Req() req: Request
+  ) {
+    const authHeader = req.headers['authorization'];
+    const userId = this.basketService.decodeUserIdFromToken(authHeader);
+    const { typeCounter, id: productId } = body;
+
+    return this.basketService.updateBasketCount(userId, productId, typeCounter);
   }
 }

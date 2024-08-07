@@ -12,6 +12,8 @@ import { SpSizeRate } from 'src/database/models/sp-size-rate.model';
 import { ProductPhoto } from 'src/database/models/product-photo.model';
 import { SpSaleTypeModel } from 'src/database/models/sp-sale-type.model';
 import { CollectionModel } from 'src/database/models/collection.model';
+import { ProductStatus } from '../database/models/product-status.model';
+import { FavoriteProduct } from '../database/models/favorite.model';
 
 @Injectable()
 export class BasketService {
@@ -58,7 +60,7 @@ export class BasketService {
                     include: [
                       {
                         model: SpBrand,
-                        attributes: [['brandName', 'productName']],
+                        attributes: ['brandName'],
                       },
                     ],
                   },
@@ -77,6 +79,10 @@ export class BasketService {
                     model: SpSaleTypeModel,
                     attributes: ['id', 'type'],
                   },
+                  {
+                    model: ProductStatus,
+                    attributes: ['id', 'status'],
+                  },
                 ],
               },
             ],
@@ -89,6 +95,7 @@ export class BasketService {
           basket.items.map(async (item) => {
             const product = item.product;
 
+            console.log(  product.collection.brand, '  product.collection.brand.');
             return {
               id: item.id,
               productId: item.productId,
@@ -110,11 +117,13 @@ export class BasketService {
               createdAt: product.createdAt,
               updatedAt: product.updatedAt,
               count: item.count,
+              productStatus: {
+                status: product.productStatus.status,
+              },
               collection: {
                 collectionName: product.collection.collectionName,
-                brandId: product.collection.brandId,
                 brand: {
-                  productName: product.collection.brand.brandName,
+                  productName: product.collection.brand.brandName
                 },
               },
               colors: product.colors.map((color) => ({
@@ -177,4 +186,30 @@ export class BasketService {
     const decodedToken = this.jwtService.decode(token) as { sub: number };
     return decodedToken.sub;
   }
+
+
+
+  async updateBasketCount(userId: number, productId: number, typeCounter: number) {
+    const basket = await this.basketModel.findOne({
+      where: { userId },
+      include: [{ model: BasketItem, where: { productId } }],
+    });
+
+    if (!basket) {
+      throw new NotFoundException('Basket not found for the user');
+    }
+
+    let basketItem = basket.items.find(item => item.productId === productId);
+
+    if (!basketItem) {
+      throw new NotFoundException('Product not found in basket');
+    }
+
+    basketItem.count = typeCounter === 1 ? basketItem.count + 1 : basketItem.count - 1;
+
+    await basketItem.save();
+
+    return basket;
+  }
+
 }

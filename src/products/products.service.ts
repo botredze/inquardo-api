@@ -170,6 +170,7 @@ export class ProductsService {
   }
 
   async findOne(id: number, userId?: number) {
+    console.log(id, userId);
     try {
       const product = await this.productModel.findByPk(id, {
         include: [
@@ -208,6 +209,7 @@ export class ProductsService {
           ProductPhoto,
           spTextureModel,
           ProductStatus,
+          SpFactureModel,
           {
             model: spCoatingModel,
             attributes: ['id', 'coating_name'],
@@ -262,6 +264,7 @@ export class ProductsService {
           if (!uniqueColors.some(c => c.id === color.colorId)) {
             uniqueColors.push({
               id: color.colorId,
+              productId: color.productId,
               color: color.color.color,
               active: color.colorId === product.colors.find(pColor => pColor.colorId === color.colorId)?.colorId,
             });
@@ -272,6 +275,7 @@ export class ProductsService {
           if (!uniqueSizes.some(s => s.id === size.sizeId)) {
             uniqueSizes.push({
               id: size.sizeId,
+              productId: size.productId,
               sizeName: size.size.sizeName,
               active: size.sizeId === product.sizes.find(pSize => pSize.sizeId === size.sizeId)?.sizeId,
             });
@@ -282,6 +286,7 @@ export class ProductsService {
           if (!uniqueMasonry.some(m => m.id === masonry.masonryId)) {
             uniqueMasonry.push({
               id: masonry.masonryId,
+              productId: masonry.productId,
               masonry_name: masonry.masonry.masonry_name,
               active: masonry.masonryId === product.masonry.find(pMasonry => pMasonry.masonryId === masonry.masonryId)?.masonryId,
             });
@@ -311,7 +316,151 @@ export class ProductsService {
     }
   }
 
+  async findOneProductId(id: number, userId?: number) {
+    try {
+      const product = await this.productModel.findByPk(id, {
+        include: [
+          {
+            model: CollectionModel,
+            attributes: ['collectionName', 'brandId'],
+            include: [
+              {
+                model: SpBrand,
+                attributes: [['brandName', 'productName']],
+              },
+            ],
+          },
+          {
+            model: ProductColor,
+            attributes: ['colorId'],
+            include: [{ model: SpColorPalitry, attributes: ['id', 'color'] }],
+          },
+          {
+            model: ProductSize,
+            attributes: ['sizeId'],
+            include: [{ model: SpSizeRate, attributes: ['id', 'sizeName'] }],
+          },
+          {
+            model: ProductRecommendation,
+            include: [
+              {
+                model: Product,
+                as: 'recommendedProduct',
+                include: [
+                  ProductPhoto,
+                ],
+              },
+            ],
+          },
+          ProductPhoto,
+          spTextureModel,
+          ProductStatus,
+          SpFactureModel,
+          {
+            model: spCoatingModel,
+            attributes: ['id', 'coating_name'],
+          },
+          {
+            model: ProductMasonry,
+            attributes: ['masonryId'],
+            include: [{ model: SpMasonry, attributes: ['id', 'masonry_name'] }],
+          },
+          {
+            model: SpSaleTypeModel,
+            attributes: ['id', 'type'],
+          },
+        ],
+      });
 
+      if (!product) {
+        return null;
+      }
+
+      if (userId) {
+        await this.createViewHistory(userId, id);
+      }
+
+      const collectionProducts = await this.productModel.findAll({
+        where: { collectionId: product.collectionId },
+        include: [
+          {
+            model: ProductColor,
+            attributes: ['colorId'],
+            include: [{ model: SpColorPalitry, attributes: ['id', 'color'] }],
+          },
+          {
+            model: ProductSize,
+            attributes: ['sizeId'],
+            include: [{ model: SpSizeRate, attributes: ['id', 'sizeName'] }],
+          },
+          {
+            model: ProductMasonry,
+            attributes: ['masonryId'],
+            include: [{ model: SpMasonry, attributes: ['id', 'masonry_name'] }],
+          },
+        ],
+      });
+
+      const uniqueColors = [];
+      const uniqueSizes = [];
+      const uniqueMasonry = [];
+
+      collectionProducts.forEach(prod => {
+        prod.colors.forEach(color => {
+          if (!uniqueColors.some(c => c.id === color.colorId)) {
+            uniqueColors.push({
+              id: color.colorId,
+              productId: color.productId,
+              color: color.color.color,
+              active: color.colorId === product.colors.find(pColor => pColor.colorId === color.colorId)?.colorId,
+            });
+          }
+        });
+
+        prod.sizes.forEach(size => {
+          if (!uniqueSizes.some(s => s.id === size.sizeId)) {
+            uniqueSizes.push({
+              id: size.sizeId,
+              productId: size.productId,
+              sizeName: size.size.sizeName,
+              active: size.sizeId === product.sizes.find(pSize => pSize.sizeId === size.sizeId)?.sizeId,
+            });
+          }
+        });
+
+        prod.masonry.forEach(masonry => {
+          if (!uniqueMasonry.some(m => m.id === masonry.masonryId)) {
+            uniqueMasonry.push({
+              id: masonry.masonryId,
+              productId: masonry.productId,
+              masonry_name: masonry.masonry.masonry_name,
+              active: masonry.masonryId === product.masonry.find(pMasonry => pMasonry.masonryId === masonry.masonryId)?.masonryId,
+            });
+          }
+        });
+      });
+
+      return {
+        ...product.get(),
+        collection: {
+          ...product.collection.get(),
+          brandName: product.collection?.brand?.brandName,
+        },
+        colors: uniqueColors,
+        sizes: uniqueSizes,
+        masonry: uniqueMasonry,
+        recommendations: product.recommendations.map(rec => ({
+          ...rec.recommendedProduct.get(),
+          photos: rec.recommendedProduct.photos,
+        })),
+        coating: product.coating ? { id: product.coating.id, type: product.coating.coating_name } : null,
+        saleType: product.saleType ? { id: product.saleType.id, type: product.saleType.type } : null,
+      };
+    } catch (error) {
+      console.log(error);
+      throw error;
+    }
+  }
   async createViewHistory(userId: number, productId: number): Promise<ViewUserHistory> {
     try {
       const viewHistory = await this.viewUserHistoryModel.create({
@@ -460,6 +609,7 @@ export class ProductsService {
       throw new HttpException('Internal Server Error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
+
 
 }
 

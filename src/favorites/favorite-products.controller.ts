@@ -1,8 +1,7 @@
 import { Controller, Get, Param, Post, Delete, Body, Req } from '@nestjs/common';
 import { FavoriteProductsService } from './favorite-products.service';
 import { Product } from "../database/models/product.model";
-import { ApiTags, ApiParam, ApiOperation, ApiResponse, ApiBody } from '@nestjs/swagger';
-import { AddItemDto } from "../basket/dto/add-item.dto";
+import { ApiTags } from '@nestjs/swagger';
 import { Request } from 'express';
 
 @ApiTags('Favorites')

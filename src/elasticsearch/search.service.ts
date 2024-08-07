@@ -1,75 +1,32 @@
-import { Injectable, HttpException, HttpStatus } from "@nestjs/common";
-import { InjectModel } from "@nestjs/sequelize";
-import { Product } from "../database/models/product.model";
-import { ProductColor } from "../database/models/product-color.model";
-import { Op } from "sequelize";
-import { spCoatingModel } from '../database/models/sp-coating.model';
-import { SpMasonry } from '../database/models/sp-masonry.model';
-import { spTextureModel } from '../database/models/sp-texture.model';
-import { CollectionModel } from '../database/models/collection.model';
-import { ProductPhoto } from "../database/models/product-photo.model";
-import { SpColorPalitry } from "../database/models/sp-color-palitry.model";
-import { SpSizeRate } from "../database/models/sp-size-rate.model";
-import { ProductSize } from "../database/models/product-size.model";
+import { Injectable } from '@nestjs/common';
+import { ElasticsearchService } from '@nestjs/elasticsearch';
 
 @Injectable()
 export class SearchService {
-  constructor(
-    @InjectModel(Product) private readonly productModel: typeof Product,
-  ) {}
+  constructor(private readonly elasticsearchService: ElasticsearchService) {}
 
   async search(query: string) {
-    console.log('Search query:', query);
-
-    const results = await this.productModel.findAll({
-      include: [
-        ProductPhoto,
-        {
-          model: ProductSize,
-          attributes: ["sizeId"],
-          include: [{ model: SpSizeRate, attributes: ["id", "sizeName"] }]
-        },
-        {
-          model: ProductColor,
-          attributes: ["colorId"],
-          include: [{ model: SpColorPalitry, attributes: ["id", "color"] }]
-        },
-        {
-          model: CollectionModel,
-          attributes: ['collectionName'],
-          where: {
-            collectionName: { [Op.like]: `%${query}%` }
-          }
-        },
-        {
-          model: spTextureModel,
-          attributes: ['texture_name'],
-          where: {
-            texture_name: { [Op.like]: `%${query}%` }
-          }
-        },
-        {
-          model: spCoatingModel,
-          attributes: ['coating_name'],
-          where: {
-            coating_name: { [Op.like]: `%${query}%` }
-          }
-        },
-        {
-          model: SpMasonry,
-          attributes: ['masonry_name'],
-          where: {
-            masonry_name: { [Op.like]: `%${query}%` }
+    console.log(query);
+    const esQuery = {
+      index: "products",
+      body: {
+        query: {
+          multi_match: {
+            query: query,
+            fields: ['material', 'collection.collectionName', 'texture.texture_name', 'coating.coating_name', 'masonry.masonry_name', 'colors.color.color']
           }
         }
-      ],
-      where: {
-        material: { [Op.like]: `%${query}%` }
-      },
-      logging: console.log
-    });
+      }
+    }
+    try {
+      const response = await this.elasticsearchService.search<any>(esQuery);
 
-    console.log('Search results:', results);
-    return results;
+      console.log('Search results:', response.hits.hits);
+
+      return response.hits.hits.map(hit => hit._source);
+    } catch (error) {
+      console.error('Elasticsearch query error:', error);
+      throw error;
+    }
   }
 }
