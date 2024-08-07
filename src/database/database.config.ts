@@ -27,7 +27,8 @@ import { ProductStatus } from './models/product-status.model';
 import { CollectionModel } from './models/collection.model';
 import { Order } from './models/order.model';
 import { OrderItem } from './models/order-item.model';
-import {SpFactureModel} from './models/sp_facture.model'; 
+import {SpFactureModel} from './models/sp_facture.model';
+import { ProductMasonry } from './models/product-masonty.model';
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -46,8 +47,8 @@ import {SpFactureModel} from './models/sp_facture.model';
           ca: fs.readFileSync(path.resolve(__dirname, '..', '..', 'ca-certificate.crt')).toString(),
         },
       },
-      autoLoadModels: true,
-      synchronize: true,
+      // autoLoadModels: true,
+      // synchronize: true,
       models: [Product,
         CollectionModel,
         SpBrand,
@@ -72,8 +73,8 @@ import {SpFactureModel} from './models/sp_facture.model';
         ProductStatus,
         Order,
         OrderItem,
-        SpFactureModel
-        ,
+        SpFactureModel,
+        ProductMasonry
       ],
     }),
   ],

@@ -7,4 +7,8 @@ export class SpFactureModel extends Model<SpFactureModel> {
 
   @Column({ type: DataType.STRING, allowNull: false })
   facture_name: string;
+
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  position: number;
+
 }

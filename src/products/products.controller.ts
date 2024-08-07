@@ -26,8 +26,10 @@ export class ProductsController {
 
   @Post('create')
   async createProducts(@Body() createProductsDto: CreateProductsDto) {
-    const { data, brandId } = createProductsDto;
-    return this.productsService.createProducts(data, brandId);
+    //const { data, brandId } = createProductsDto;
+
+    const {data} = createProductsDto
+    return this.productsService.createProducts(data);
   }
 
   @Post()

@@ -15,4 +15,7 @@ export class SpSizeRate extends Model<SpSizeRate> {
 
   @BelongsTo(() => SpBrand)
   brand: SpBrand;
+
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  position: number;
 }

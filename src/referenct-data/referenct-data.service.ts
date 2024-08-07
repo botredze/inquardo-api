@@ -8,6 +8,7 @@ import { spCoatingModel } from '../database/models/sp-coating.model';
 import { Injectable } from '@nestjs/common';
 import { spTextureModel } from '../database/models/sp-texture.model';
 import { ProductStatus } from 'src/database/models/product-status.model';
+import { SpFactureModel } from '../database/models/sp_facture.model';
 
 @Injectable()
 export class ReferenceDataService {
@@ -20,6 +21,7 @@ export class ReferenceDataService {
     @InjectModel(SpMasonry) private readonly masonryModel: typeof SpMasonry,
     @InjectModel(spTextureModel) private readonly textureModel: typeof spTextureModel,
     @InjectModel(ProductStatus) private readonly statusModel: typeof ProductStatus,
+    @InjectModel(SpFactureModel) private readonly  factureModel: typeof SpFactureModel,
   ) {}
 
   async findAllBrands() {
@@ -37,23 +39,48 @@ export class ReferenceDataService {
         },
       ],
       group: ['SpBrand.id', 'SpBrand.brandName'],
+      order: [['position', 'ASC']]
     });
     return brands;
   }
 
   async findAllDataForBrand(brandId: number) {
     console.log(brandId);
-  
-    const colors = await this.colorModel.findAll({ where: { brandId } });
-    const sizes = await this.sizeModel.findAll({ where: { brandId } });
-    const coatings = await this.coatingModel.findAll({ where: { brandId } });
-    const masonryTypes = await this.masonryModel.findAll({ where: { brandId } });
-    const texture = await this.textureModel.findAll();
-    const status = await this.statusModel.findAll();
-  
+
+    const colors = await this.colorModel.findAll({
+      where: { brandId },
+      order: [['position', 'ASC']]
+    });
+
+    const sizes = await this.sizeModel.findAll({
+      where: { brandId },
+      order: [['position', 'ASC']]
+    });
+
+    const coatings = await this.coatingModel.findAll({
+      where: { brandId },
+      order: [['position', 'ASC']]
+    });
+
+    const masonryTypes = await this.masonryModel.findAll({
+      order: [['position', 'ASC']]
+    });
+
+    const texture = await this.textureModel.findAll({
+      order: [['position', 'ASC']]
+    });
+
+    const status = await this.statusModel.findAll({
+      order: [['position', 'ASC']]
+    });
+
+    const facture = await this.factureModel.findAll({
+      order: [['position', 'ASC']]
+    });
+
     const minPrice = await this.productModel.min('price', { where: { brandId } });
     const maxPrice = await this.productModel.max('price', { where: { brandId } });
-  
+
     return {
       colors,
       sizes,
@@ -62,8 +89,9 @@ export class ReferenceDataService {
       texture,
       status,
       minPrice,
-      maxPrice
+      maxPrice,
+      facture
     };
   }
-  
+
 }

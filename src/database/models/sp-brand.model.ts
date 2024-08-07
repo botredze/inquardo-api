@@ -14,14 +14,14 @@ export class SpBrand extends Model<SpBrand> {
   @Column({ type: DataType.STRING, allowNull: false })
   brandName: string;
 
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  position: number;
+
   @HasMany(() => Product)
   products: Product[];
 
   @HasMany(() => spCoatingModel)
   coatings: spCoatingModel[];
-
-  @HasMany(() => SpMasonry)
-  masonries: SpMasonry[];
 
   @HasMany(() => SpSizeRate)
   sizes: SpSizeRate[];

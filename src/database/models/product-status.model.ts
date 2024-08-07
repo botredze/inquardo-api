@@ -14,4 +14,7 @@ export class ProductStatus extends Model<ProductStatus> {
 
   @HasMany(() => Product)
   products: Product[];
+
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  position: number;
 }

@@ -21,6 +21,7 @@ import { SpSaleTypeModel } from 'src/database/models/sp-sale-type.model';
 import { SpColorPalitry } from 'src/database/models/sp-color-palitry.model';
 import { SpSizeRate } from 'src/database/models/sp-size-rate.model';
 import { SpFactureModel } from 'src/database/models/sp_facture.model';
+import { ProductMasonry } from '../database/models/product-masonty.model';
 
 
 @Module({
@@ -41,7 +42,8 @@ import { SpFactureModel } from 'src/database/models/sp_facture.model';
       SpSaleTypeModel,
       SpColorPalitry,
       SpSizeRate,
-      SpFactureModel
+      SpFactureModel,
+      ProductMasonry
     ]),
     PassportModule,
     JwtModule.register({

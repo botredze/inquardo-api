@@ -15,4 +15,7 @@ export class SpColorPalitry extends Model<SpColorPalitry> {
 
   @BelongsTo(() => SpBrand)
   brand: SpBrand;
+
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  position: number;
 }

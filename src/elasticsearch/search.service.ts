@@ -1,78 +1,75 @@
-import { Injectable } from '@nestjs/common';
-import { ElasticsearchService } from '@nestjs/elasticsearch';
+import { Injectable, HttpException, HttpStatus } from "@nestjs/common";
+import { InjectModel } from "@nestjs/sequelize";
+import { Product } from "../database/models/product.model";
+import { ProductColor } from "../database/models/product-color.model";
+import { Op } from "sequelize";
+import { spCoatingModel } from '../database/models/sp-coating.model';
+import { SpMasonry } from '../database/models/sp-masonry.model';
+import { spTextureModel } from '../database/models/sp-texture.model';
+import { CollectionModel } from '../database/models/collection.model';
+import { ProductPhoto } from "../database/models/product-photo.model";
+import { SpColorPalitry } from "../database/models/sp-color-palitry.model";
+import { SpSizeRate } from "../database/models/sp-size-rate.model";
+import { ProductSize } from "../database/models/product-size.model";
 
 @Injectable()
 export class SearchService {
-  constructor(private readonly elasticsearchService: ElasticsearchService) {}
+  constructor(
+    @InjectModel(Product) private readonly productModel: typeof Product,
+  ) {}
 
   async search(query: string) {
-    const response = await this.elasticsearchService.search<any>({
-      index: 'products',
-      body: {
-        query: {
-          bool: {
-            should: [
-              {
-                multi_match: {
-                  query,
-                  fields: [
-                    'productName^3',
-                    'colors.colorName^2',
-                    'coating.coatingName^2',
-                    'category.name^2',
-                    'sizes.sizeName^2',
-                    'status.name^2',
-                  ],
-                  type: 'best_fields',
-                  fuzziness: 'AUTO',
-                  operator: 'and',
-                },
-              },
-              {
-                match: {
-                  productName: {
-                    query,
-                    fuzziness: 'AUTO',
-                    operator: 'and',
-                    boost: 3,
-                  },
-                },
-              },
-              {
-                nested: {
-                  path: 'colors',
-                  query: {
-                    match: {
-                      'colors.colorName': {
-                        query,
-                        fuzziness: 'AUTO',
-                        operator: 'and',
-                        boost: 2,
-                      },
-                    },
-                  },
-                },
-              },
-              {
-                nested: {
-                  path: 'sizes',
-                  query: {
-                    match: {
-                      'sizes.sizeName': {
-                        query,
-                        fuzziness: 'AUTO',
-                        operator: 'and',
-                        boost: 2,
-                      },
-                    },
-                  },
-                },
-              },
-            ],
-          },
+    console.log('Search query:', query);
+
+    const results = await this.productModel.findAll({
+      include: [
+        ProductPhoto,
+        {
+          model: ProductSize,
+          attributes: ["sizeId"],
+          include: [{ model: SpSizeRate, attributes: ["id", "sizeName"] }]
         },
+        {
+          model: ProductColor,
+          attributes: ["colorId"],
+          include: [{ model: SpColorPalitry, attributes: ["id", "color"] }]
+        },
+        {
+          model: CollectionModel,
+          attributes: ['collectionName'],
+          where: {
+            collectionName: { [Op.like]: `%${query}%` }
+          }
+        },
+        {
+          model: spTextureModel,
+          attributes: ['texture_name'],
+          where: {
+            texture_name: { [Op.like]: `%${query}%` }
+          }
+        },
+        {
+          model: spCoatingModel,
+          attributes: ['coating_name'],
+          where: {
+            coating_name: { [Op.like]: `%${query}%` }
+          }
+        },
+        {
+          model: SpMasonry,
+          attributes: ['masonry_name'],
+          where: {
+            masonry_name: { [Op.like]: `%${query}%` }
+          }
+        }
+      ],
+      where: {
+        material: { [Op.like]: `%${query}%` }
       },
+      logging: console.log
     });
-    return response.hits.hits.map(hit => hit._source);
+
+    console.log('Search results:', results);
+    return results;
   }
 }

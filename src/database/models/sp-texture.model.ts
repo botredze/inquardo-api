@@ -11,4 +11,7 @@ export class spTextureModel extends Model<spTextureModel> {
 
     @HasOne(() => Product)
     product: Product;
+
+    @Column({ type: DataType.INTEGER, allowNull: true })
+    position: number;
 }

@@ -10,10 +10,11 @@ import { SpMasonry } from '../database/models/sp-masonry.model';
 import { spCoatingModel } from '../database/models/sp-coating.model';
 import { spTextureModel } from '../database/models/sp-texture.model';
 import { ProductStatus } from 'src/database/models/product-status.model';
+import { SpFactureModel } from '../database/models/sp_facture.model';
 
 @Module({
   imports: [
-    SequelizeModule.forFeature([SpColorPalitry, SpBrand, SpSizeRate, Product, SpMasonry, spCoatingModel, spTextureModel, ProductStatus]),
+    SequelizeModule.forFeature([SpColorPalitry, SpBrand, SpSizeRate, Product, SpMasonry, spCoatingModel, spTextureModel, ProductStatus, SpFactureModel]),
   ],
   controllers: [ReferenceDataController],
   providers: [ReferenceDataService],

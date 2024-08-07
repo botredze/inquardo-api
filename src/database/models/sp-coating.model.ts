@@ -7,7 +7,7 @@ export class spCoatingModel extends Model<spCoatingModel> {
   id: number;
 
   @Column({ type: DataType.STRING, allowNull: false})
-  coating_name: string; 
+  coating_name: string;
 
   @ForeignKey(() => SpBrand)
   @Column({ type: DataType.INTEGER, allowNull: false })
@@ -15,4 +15,7 @@ export class spCoatingModel extends Model<spCoatingModel> {
 
   @BelongsTo(() => SpBrand)
   brand: SpBrand;
+
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  position: number;
 }

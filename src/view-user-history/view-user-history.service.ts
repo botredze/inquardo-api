@@ -9,6 +9,8 @@ import { ProductStatus } from '../database/models/product-status.model';
 import { spCoatingModel } from '../database/models/sp-coating.model';
 import { spTextureModel } from '../database/models/sp-texture.model';
 import { CollectionModel } from '../database/models/collection.model';
+import { ProductColor } from '../database/models/product-color.model';
+import { SpColorPalitry } from '../database/models/sp-color-palitry.model';
 
 @Injectable()
 export class ViewUserHistoryService {
@@ -44,7 +46,11 @@ export class ViewUserHistoryService {
         },
         ProductPhoto,
         spCoatingModel,
-        SpMasonry,
+        {
+          model: ProductColor,
+          attributes: ["colorId"],
+          include: [{ model: SpColorPalitry, attributes: ["id", "color"] }]
+        },
         spTextureModel,
         ProductStatus
       ]

@@ -16,6 +16,7 @@ import { ProductStatus } from './product-status.model';
 import { CollectionModel } from './collection.model';
 import { FavoriteProduct } from './favorite.model';
 import { SpFactureModel } from './sp_facture.model';
+import { ProductMasonry } from './product-masonty.model';
 
 @Table({ tableName: 'products' })
 export class Product extends Model<Product> {
@@ -63,7 +64,7 @@ export class Product extends Model<Product> {
   saleTypeId: number;
 
   @ForeignKey(() => SpFactureModel)
-  @Column({ type: DataType.INTEGER, allowNull: true }) 
+  @Column({ type: DataType.INTEGER, allowNull: true })
   factureId: number;
 
   @ForeignKey(() => spTextureModel)
@@ -105,6 +106,9 @@ export class Product extends Model<Product> {
   @HasMany(() => ProductSize)
   sizes: ProductSize[];
 
+  @HasMany(() => ProductMasonry)
+  masonry: ProductMasonry[];
+
   @HasMany(() => ProductRecommendation)
   recommendations: ProductRecommendation[];
 
@@ -113,9 +117,6 @@ export class Product extends Model<Product> {
 
   @BelongsToMany(() => User, { through: { model: () => FavoriteProduct } })
   favoritedByUsers: User[];
-
-  @BelongsTo(() => SpMasonry)
-  masonry: SpMasonry;
 
   @BelongsTo(() => spTextureModel)
   texture: spTextureModel;

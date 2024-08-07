@@ -8,4 +8,6 @@ export class SpSaleTypeModel extends Model<SpSaleTypeModel> {
   @Column({ type: DataType.STRING, allowNull: false })
   type: string;
 
+  @Column({ type: DataType.INTEGER, allowNull: true })
+  position: number;
 }

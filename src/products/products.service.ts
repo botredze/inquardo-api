@@ -1,27 +1,28 @@
-import { Injectable, HttpException, HttpStatus } from "@nestjs/common";
-import { InjectModel } from "@nestjs/sequelize";
-import { Product } from "../database/models/product.model";
-import { CreateProductsDto } from "./dto/create-product.dto";
-import { ProductColor } from "../database/models/product-color.model";
-import { ProductSize } from "../database/models/product-size.model";
-import { ProductRecommendation } from "../database/models/product-recommendations.model";
-import { Op } from "sequelize";
-import { ProductPhoto } from "../database/models/product-photo.model";
-import { S3Service } from "../s3/s3.service";
-import { SpColorPalitry } from "../database/models/sp-color-palitry.model";
-import { SpSizeRate } from "../database/models/sp-size-rate.model";
-import { Sequelize } from "sequelize-typescript";
-import { Rating } from "../database/models/rating.model";
+import { Injectable, HttpException, HttpStatus } from '@nestjs/common';
+import { InjectModel } from '@nestjs/sequelize';
+import { Product } from '../database/models/product.model';
+import { CreateProductsDto } from './dto/create-product.dto';
+import { ProductColor } from '../database/models/product-color.model';
+import { ProductSize } from '../database/models/product-size.model';
+import { ProductRecommendation } from '../database/models/product-recommendations.model';
+import { Op } from 'sequelize';
+import { ProductPhoto } from '../database/models/product-photo.model';
+import { S3Service } from '../s3/s3.service';
+import { SpColorPalitry } from '../database/models/sp-color-palitry.model';
+import { SpSizeRate } from '../database/models/sp-size-rate.model';
+import { Sequelize } from 'sequelize-typescript';
+import { Rating } from '../database/models/rating.model';
 import { spCoatingModel } from '../database/models/sp-coating.model';
 import { SpMasonry } from '../database/models/sp-masonry.model';
 import { ProductFilterDto } from './dto/product-filter.dto';
 import { SpSaleTypeModel } from '../database/models/sp-sale-type.model';
 import { spTextureModel } from '../database/models/sp-texture.model';
-import { ProductStatus } from "src/database/models/product-status.model";
+import { ProductStatus } from 'src/database/models/product-status.model';
 import { ViewUserHistory } from '../database/models/view-user-history.model';
 import { CollectionModel } from '../database/models/collection.model';
 import { SpBrand } from '../database/models/sp-brand.model';
-import { SpFactureModel } from "src/database/models/sp_facture.model";
+import { SpFactureModel } from 'src/database/models/sp_facture.model';
+import { ProductMasonry } from '../database/models/product-masonty.model';
 
 @Injectable()
 export class ProductsService {
@@ -40,7 +41,8 @@ export class ProductsService {
     @InjectModel(ProductColor) private readonly productColorModel: typeof ProductColor,
     @InjectModel(ProductSize) private readonly productSizeModel: typeof ProductSize,
     @InjectModel(SpFactureModel) private readonly spFactureModel: typeof SpFactureModel,
-    private readonly s3Service: S3Service
+    @InjectModel(ProductMasonry) private readonly productMasonry: typeof ProductMasonry,
+    private readonly s3Service: S3Service,
   ) {
   }
 
@@ -57,54 +59,71 @@ export class ProductsService {
       console.error('Error in findOrCreate:', error); // Подробное логирование ошибки
       throw error;
     }
-  }  
-
-async createProducts(data: any[], brandId: number) {
-  for (const item of data) {
-      const collection = await this.findOrCreate(this.collectionModel, { collectionName: item.name }, { brandId });
-      const masonry = await this.findOrCreate(this.masonryModel, { masonry_name: item.mansory }, { brandId });
-      const coating = await this.findOrCreate(this.coatingModel, { coating_name: item.coating }, { brandId });
-      const texture = await this.findOrCreate(this.textureModel, { texture_name: item.texture });
-      const status = await this.findOrCreate(this.statusModel, { status: item.status });
-      const saleType = await this.findOrCreate(this.saleTypeModel, { type: item.type });
-      const facture = await this.findOrCreate(this.spFactureModel, {facture_name: item.facture})
-
-      const product = await this.productModel.create({
-          price: parseFloat(item.price.replace(',', '.')),
-          material: 'керамика',
-          country: item.country,
-          articul: item.articles,
-          complect: item.komplect,
-          collectionId: collection.id,
-          brandId,
-          coatingId: coating.id,
-          saleTypeId: saleType.id,
-          textureId: texture.id,
-          masonryId: masonry.id,
-          statusId: status.id,
-          factureId: facture.id,
-      });
-
-      await this.photoModel.create({
-          productId: product.id,
-          url: 'https://inquadro-bucket.fra1.cdn.digitaloceanspaces.com/photos/bas_01.jpg',
-          main: true,
-          interier: false,
-      });
-
-      const color = await this.findOrCreate(this.spColorPalitryModel, { color: item.color }, { brandId });
-      await this.productColorModel.create({
-          productId: product.id,
-          colorId: color.id,
-      });
-
-      const size = await this.findOrCreate(this.spSizeRateModel, { sizeName: item.size }, { brandId });
-      await this.productSizeModel.create({
-          productId: product.id,
-          sizeId: size.id,
-      });   
   }
-}
+
+  async createProducts(data: any[]) {
+    for (const item of data) {
+      // const collection = await this.findOrCreate(this.collectionModel, { collectionName: item.name }, { brandId });
+      // const masonry = await this.findOrCreate(this.masonryModel, { masonry_name: item.mansory }, { brandId });
+      // const coating = await this.findOrCreate(this.coatingModel, { coating_name: item.coating }, { brandId });
+      // const texture = await this.findOrCreate(this.textureModel, { texture_name: item.texture });
+      // const status = await this.findOrCreate(this.statusModel, { status: item.status });
+      // const saleType = await this.findOrCreate(this.saleTypeModel, { type: item.type });
+      // const facture = await this.findOrCreate(this.spFactureModel, {facture_name: item.facture})
+
+      // const product = await this.productModel.create({
+      //     price: parseFloat(item.price.replace(',', '.')),
+      //     material: 'керамика',
+      //     country: item.country,
+      //     articul: item.articles,
+      //     complect: item.komplect,
+      //     collectionId: collection.id,
+      //     brandId,
+      //     coatingId: coating.id,
+      //     saleTypeId: saleType.id,
+      //     textureId: texture.id,
+      //     masonryId: masonry.id,
+      //     statusId: status.id,
+      //     factureId: facture.id,
+      // });
+
+      // await this.photoModel.create({
+      //     productId: product.id,
+      //     url: 'https://inquadro-bucket.fra1.cdn.digitaloceanspaces.com/photos/bas_01.jpg',
+      //     main: true,
+      //     interier: false,
+      // });
+
+      // const color = await this.findOrCreate(this.spColorPalitryModel, { color: item.color }, { brandId });
+      // await this.productColorModel.create({
+      //     productId: product.id,
+      //     colorId: color.id,
+      // });
+      //
+      // const size = await this.findOrCreate(this.spSizeRateModel, { sizeName: item.size }, { brandId });
+      // await this.productSizeModel.create({
+      //     productId: product.id,
+      //     sizeId: size.id,
+      // });
+      console.log(item);
+      if (item.mansory == 12) {
+        console.log('(item.id == 12) {', item);
+        const ids = [4, 5];
+        for (const id of ids) {
+          await this.productMasonry.create({
+            productId: item.id,
+            masonryId: id
+          });
+        }
+      }else if(item.mansory !== 12) {
+        console.log('else if(item.id !== 12)', item);
+        await this.productMasonry.create({
+          productId: item.id,
+          masonryId: item.mansory
+        })
+      }
+    }
+  }
 
   async findAll(brandId?: number) {
     return this.productModel.findAll({
@@ -117,7 +136,7 @@ async createProducts(data: any[], brandId: number) {
             {
               model: SpBrand,
               attributes: [['brandName', 'productName']],
-            }
+            },
           ],
           where: brandId ? { brandId } : undefined,
         },
@@ -136,7 +155,7 @@ async createProducts(data: any[], brandId: number) {
         {
           model: ProductStatus,
           attributes: ['status'],
-        }
+        },
       ],
       order: [['id', 'ASC']],
     }).then(products => {
@@ -144,15 +163,15 @@ async createProducts(data: any[], brandId: number) {
         ...product.get(),
         collection: {
           ...product.collection.get(),
-          brandName: product.collection.brand.brandName
-        }
+          brandName: product.collection.brand.brandName,
+        },
       }));
     });
   }
 
   async findOne(id: number, userId?: number) {
     try {
-      return this.productModel.findByPk(id, {
+      const product = await this.productModel.findByPk(id, {
         include: [
           {
             model: CollectionModel,
@@ -161,76 +180,137 @@ async createProducts(data: any[], brandId: number) {
               {
                 model: SpBrand,
                 attributes: [['brandName', 'productName']],
-              }
+              },
             ],
           },
           {
             model: ProductColor,
-            attributes: ["colorId"],
-            include: [{ model: SpColorPalitry, attributes: ["id", "color"] }]
+            attributes: ['colorId'],
+            include: [{ model: SpColorPalitry, attributes: ['id', 'color'] }],
           },
           {
             model: ProductSize,
-            attributes: ["sizeId"],
-            include: [{ model: SpSizeRate, attributes: ["id", "sizeName"] }]
+            attributes: ['sizeId'],
+            include: [{ model: SpSizeRate, attributes: ['id', 'sizeName'] }],
           },
           {
             model: ProductRecommendation,
             include: [
               {
                 model: Product,
-                as: "recommendedProduct",
+                as: 'recommendedProduct',
                 include: [
-                  ProductPhoto
-                ]
-              }
-            ]
+                  ProductPhoto,
+                ],
+              },
+            ],
           },
           ProductPhoto,
           spTextureModel,
           ProductStatus,
           {
             model: spCoatingModel,
-            attributes: ["id", "coating_name"]
+            attributes: ['id', 'coating_name'],
           },
           {
-            model: SpMasonry,
-            attributes: ["id", "masonry_name"]
+            model: ProductMasonry,
+            attributes: ['masonryId'],
+            include: [{ model: SpMasonry, attributes: ['id', 'masonry_name'] }],
           },
           {
             model: SpSaleTypeModel,
-            attributes: ["id", "type"]
-          }
-        ]
-      }).then(async product => {
-        if (product) {
-          if (userId) {
-            await this.createViewHistory(userId, id);
-          }
-
-          return {
-            ...product.get(),
-            collection: {
-              ...product.collection.get(),
-              brandName: product.collection?.brand?.brandName
-            },
-            colors: product.colors.map(color => ({ id: color.colorId, color: color.color.color })),
-            sizes: product.sizes.map(size => ({ id: size.sizeId, sizeName: size.size.sizeName })),
-            recommendations: product.recommendations.map(rec => ({
-              ...rec.recommendedProduct.get(),
-              photos: rec.recommendedProduct.photos
-            })),
-            coating: product.coating ? { id: product.coating.id, type: product.coating.coating_name } : null,
-            saleType: product.saleType ? { id: product.saleType.id, type: product.saleType.type } : null
-          };
-        }
-        return null;
+            attributes: ['id', 'type'],
+          },
+        ],
       });
-    }catch (error) {
+
+      if (!product) {
+        return null;
+      }
+
+      if (userId) {
+        await this.createViewHistory(userId, id);
+      }
+
+      const collectionProducts = await this.productModel.findAll({
+        where: { collectionId: product.collectionId },
+        include: [
+          {
+            model: ProductColor,
+            attributes: ['colorId'],
+            include: [{ model: SpColorPalitry, attributes: ['id', 'color'] }],
+          },
+          {
+            model: ProductSize,
+            attributes: ['sizeId'],
+            include: [{ model: SpSizeRate, attributes: ['id', 'sizeName'] }],
+          },
+          {
+            model: ProductMasonry,
+            attributes: ['masonryId'],
+            include: [{ model: SpMasonry, attributes: ['id', 'masonry_name'] }],
+          },
+        ],
+      });
+
+      const uniqueColors = [];
+      const uniqueSizes = [];
+      const uniqueMasonry = [];
+
+      collectionProducts.forEach(prod => {
+        prod.colors.forEach(color => {
+          if (!uniqueColors.some(c => c.id === color.colorId)) {
+            uniqueColors.push({
+              id: color.colorId,
+              color: color.color.color,
+              active: color.colorId === product.colors.find(pColor => pColor.colorId === color.colorId)?.colorId,
+            });
+          }
+        });
+
+        prod.sizes.forEach(size => {
+          if (!uniqueSizes.some(s => s.id === size.sizeId)) {
+            uniqueSizes.push({
+              id: size.sizeId,
+              sizeName: size.size.sizeName,
+              active: size.sizeId === product.sizes.find(pSize => pSize.sizeId === size.sizeId)?.sizeId,
+            });
+          }
+        });
+
+        prod.masonry.forEach(masonry => {
+          if (!uniqueMasonry.some(m => m.id === masonry.masonryId)) {
+            uniqueMasonry.push({
+              id: masonry.masonryId,
+              masonry_name: masonry.masonry.masonry_name,
+              active: masonry.masonryId === product.masonry.find(pMasonry => pMasonry.masonryId === masonry.masonryId)?.masonryId,
+            });
+          }
+        });
+      });
+
+      return {
+        ...product.get(),
+        collection: {
+          ...product.collection.get(),
+          brandName: product.collection?.brand?.brandName,
+        },
+        colors: uniqueColors,
+        sizes: uniqueSizes,
+        masonry: uniqueMasonry,
+        recommendations: product.recommendations.map(rec => ({
+          ...rec.recommendedProduct.get(),
+          photos: rec.recommendedProduct.photos,
+        })),
+        coating: product.coating ? { id: product.coating.id, type: product.coating.coating_name } : null,
+        saleType: product.saleType ? { id: product.saleType.id, type: product.saleType.type } : null,
+      };
+    } catch (error) {
       console.log(error);
       throw error;
     }
   }
+
 
   async createViewHistory(userId: number, productId: number): Promise<ViewUserHistory> {
     try {
@@ -249,21 +329,21 @@ async createProducts(data: any[], brandId: number) {
     try {
       console.log(filters, 'filters');
       const { coating, color, kladka, price, size, status, texture, sorting, brandId } = filters;
-  
+
       const where: any = {};
-  
+
       if (coating && coating.length > 0) {
-        where["$coating.id$"] = { [Op.in]: coating };
+        where['$coating.id$'] = { [Op.in]: coating };
       }
-  
+
       if (color && color.length > 0) {
-        where["$colors.colorId$"] = { [Op.in]: color };
+        where['$colors.colorId$'] = { [Op.in]: color };
       }
-  
-      if (kladka && kladka.length > 0) {
-        where["$masonry.id$"] = { [Op.in]: kladka };
-      }
-  
+
+      // if (kladka && kladka.length > 0) {
+      //   where["$masonry.id$"] = { [Op.in]: kladka };
+      // }
+
       if (price && (price.min !== undefined || price.max !== undefined)) {
         where.price = {};
         if (price.min !== undefined) {
@@ -273,50 +353,56 @@ async createProducts(data: any[], brandId: number) {
           where.price[Op.lte] = price.max;
         }
       }
-  
+
       // if (size !== undefined && size !== 0 && size) {
       //   where["$sizes.sizeId$"] = {[Op.in]: size};
       // }
-  
+
       // if (status && status.length > 0) {
       //   where.status = { [Op.in]: status };
       // }
-  
+
       if (texture && texture.length > 0) {
-        where["$texture.id$"] = { [Op.in]: texture };
+        where['$texture.id$'] = { [Op.in]: texture };
       }
-  
+
       let sortCriteria = [];
       if (sorting) {
         switch (sorting) {
           case 1:
-            sortCriteria.push(["price", "ASC"]);
+            sortCriteria.push(['price', 'ASC']);
             break;
           case 2:
-            sortCriteria.push(["price", "DESC"]);
+            sortCriteria.push(['price', 'DESC']);
             break;
           case 3:
-            sortCriteria.push(["createdAt", "DESC"]);
+            sortCriteria.push(['createdAt', 'DESC']);
             break;
           default:
             break;
         }
       }
-  
-      console.log('where', where)
+
+      console.log('where', where);
       const products = await Product.findAll({
         where,
         include: [
           ProductPhoto,
           {
             model: ProductSize,
-            attributes: ["sizeId"],
-            include: [{ model: SpSizeRate, attributes: ["id", "sizeName"] }]
+            attributes: ['sizeId'],
+            include: [{ model: SpSizeRate, attributes: ['id', 'sizeName'] }],
           },
           {
             model: ProductColor,
-            attributes: ["colorId"],
-            include: [{ model: SpColorPalitry, attributes: ["id", "color"] }]
+            attributes: ['colorId'],
+            include: [{ model: SpColorPalitry, attributes: ['id', 'color'] }],
+          },
+
+          {
+            model: ProductMasonry,
+            attributes: ['masonryId'],
+            include: [{ model: SpMasonry, attributes: ['id', 'masonry_name'] }],
           },
           {
             model: CollectionModel,
@@ -325,59 +411,55 @@ async createProducts(data: any[], brandId: number) {
               {
                 model: SpBrand,
                 attributes: [['brandName', 'productName']],
-              }
+              },
             ],
             where: brandId ? { brandId } : undefined,
           },
           {
             model: SpSaleTypeModel,
-            attributes: ["id", "type"]
+            attributes: ['id', 'type'],
           },
           {
             model: spTextureModel,
-            attributes: ["id", "texture_name"]
+            attributes: ['id', 'texture_name'],
           },
           {
             model: ProductStatus,
-            attributes: ["id", "status"]
+            attributes: ['id', 'status'],
           },
           {
             model: spCoatingModel,
-            attributes: ["id", "coating_name"]
-          },
-          {
-            model: SpMasonry,
-            attributes: ["id", "masonry_name"]
+            attributes: ['id', 'coating_name'],
           },
         ],
-        order: sortCriteria
+        order: sortCriteria,
       });
-  
+
       const prices = await Product.findAll({
         attributes: [
-          [Sequelize.fn("MIN", Sequelize.col("price")), "minPrice"],
-          [Sequelize.fn("MAX", Sequelize.col("price")), "maxPrice"]
-        ]
+          [Sequelize.fn('MIN', Sequelize.col('price')), 'minPrice'],
+          [Sequelize.fn('MAX', Sequelize.col('price')), 'maxPrice'],
+        ],
       });
-  
-      const minPrice = prices[0].get("minPrice");
-      const maxPrice = prices[0].get("maxPrice");
-  
+
+      const minPrice = prices[0].get('minPrice');
+      const maxPrice = prices[0].get('maxPrice');
+
       const result = products.map(product => ({
         ...product.get(),
         collection: {
           ...product.collection.get(),
-          brandName: product.collection.brand.brandName
-        }
+          brandName: product.collection.brand.brandName,
+        },
       }));
-  
+
       return result;
-  
+
     } catch (error) {
       console.log(error);
-      throw new HttpException("Internal Server Error", HttpStatus.INTERNAL_SERVER_ERROR);
+      throw new HttpException('Internal Server Error', HttpStatus.INTERNAL_SERVER_ERROR);
     }
   }
-  
+
 }
 

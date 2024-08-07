@@ -43,11 +43,11 @@ class ProductItemDto {
 }
 
 export class CreateProductsDto {
-  @IsArray()
-  @ValidateNested({ each: true })
-  @Type(() => ProductItemDto)
-  readonly data: ProductItemDto[];
-
-  @IsNumber()
-  readonly brandId: number;
+  // @IsArray()
+  // @ValidateNested({ each: true })
+  // @Type(() => ProductItemDto)
+  // // readonly data: ProductItemDto[];
+  readonly data: [];
+  // @IsNumber()
+  // readonly brandId: number;
 }

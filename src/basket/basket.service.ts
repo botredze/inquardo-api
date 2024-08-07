@@ -32,8 +32,8 @@ export class BasketService {
       }
 
       const basketItem = await this.basketItemModel.create({ basketId: basket.id, productId, colorId: productId, sizeId: productId, count: 1 });
-      
-      return basketItem.id; 
+
+      return basketItem.id;
     } catch (error) {
       console.error('Error adding item to basket:', error);
       throw new InternalServerErrorException('Error adding item to basket');
@@ -83,12 +83,12 @@ export class BasketService {
           },
         ],
       });
-  
+
       if (basket) {
         const basketItems = await Promise.all(
           basket.items.map(async (item) => {
             const product = item.product;
-  
+
             return {
               id: item.id,
               productId: item.productId,
@@ -106,7 +106,6 @@ export class BasketService {
               saleTypeId: product.saleTypeId,
               factureId: product.factureId,
               textureId: product.textureId,
-              masonryId: product.masonryId,
               statusId: product.statusId,
               createdAt: product.createdAt,
               updatedAt: product.updatedAt,
@@ -141,16 +140,16 @@ export class BasketService {
             };
           })
         );
-  
+
         return basketItems;
       }
-  
+
       return null;
     } catch (error) {
       console.error('Error getting user basket:', error);
       throw new InternalServerErrorException('Error getting user basket');
     }
-  }  
+  }
 
   async removeItemFromBasket(userId: number, itemId: number): Promise<void> {
     try {

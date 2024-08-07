@@ -1,6 +1,7 @@
-import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasOne } from 'sequelize-typescript';
+import { Table, Column, Model, DataType, ForeignKey, BelongsTo, HasOne, BelongsToMany } from 'sequelize-typescript';
 import { SpBrand } from './sp-brand.model';
 import { Product } from './product.model';
+import { ProductMasonry } from './product-masonty.model';
 
 @Table({ tableName: 'sp_masonry' })
 export class SpMasonry extends Model<SpMasonry> {
@@ -10,14 +11,7 @@ export class SpMasonry extends Model<SpMasonry> {
   @Column({ type: DataType.STRING, allowNull: false })
   masonry_name: string;
 
-  @ForeignKey(() => SpBrand)
-  @Column({ type: DataType.INTEGER, allowNull: false })
-  brandId: number;
-
-  @BelongsTo(() => SpBrand)
-  brand: SpBrand;
-
-  @HasOne(() => Product)
-  product: Product;
+  @BelongsToMany(() => Product, { through: () => ProductMasonry })
+  products: Product[];
 
 }
