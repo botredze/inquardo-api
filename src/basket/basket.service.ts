@@ -187,14 +187,11 @@ export class BasketService {
     return decodedToken.sub;
   }
 
-
-
   async updateBasketCount(userId: number, productId: number, typeCounter: number) {
     const basket = await this.basketModel.findOne({
       where: { userId },
       include: [{ model: BasketItem, where: { productId } }],
     });
-
     if (!basket) {
       throw new NotFoundException('Basket not found for the user');
     }

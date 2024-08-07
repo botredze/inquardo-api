@@ -6,6 +6,7 @@ import { OrderItem } from '../database/models/order-item.model';
 import { CreateOrderDto } from './dto/cretate.order.dto';
 import { UserDetails } from '../database/models/user-details.model';
 import Telegram from 'node-telegram-api';
+import { JwtService } from '@nestjs/jwt';
 
 @Injectable()
 export class OrderService {
@@ -15,15 +16,18 @@ export class OrderService {
     @InjectModel(Order) private readonly orderModel: typeof Order,
     @InjectModel(OrderItem) private readonly orderItemModel: typeof OrderItem,
     @InjectModel(UserDetails) private readonly userModel: typeof UserDetails,
+    private readonly jwtService: JwtService,
   ) {
     const telegramToken = process.env.TELEGRAM_BOT_TOKEN;
     this.telegram = new Telegram(telegramToken);
   }
 
-  async createOrder(createOrderDto: CreateOrderDto): Promise<Order> {
-    const { userId, basketItems, totalPrice } = createOrderDto;
+  async createOrder(createOrderDto: CreateOrderDto, userId): Promise<Order> {
+    const { basketItems, totalPrice, basketId } = createOrderDto;
 
+    console.log(basketItems, 'basketItems');
     const order = await this.orderModel.create({
+      basketId,
       userId,
       orderDate: new Date(),
       status: 'Pending',
@@ -85,4 +89,11 @@ export class OrderService {
 
     await transporter.sendMail(mailOptions);
   }
+
+  decodeUserIdFromToken(authHeader: string): number {
+    const token = authHeader.replace('Bearer ', '');
+    const decodedToken = this.jwtService.decode(token) as { sub: number };
+    return decodedToken.sub;
+  }
+
 }

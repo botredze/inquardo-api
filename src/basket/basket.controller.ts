@@ -1,7 +1,6 @@
 import { Body, Controller, HttpStatus, Get, Param, Post, Delete, Req } from "@nestjs/common";
-import { ApiBadRequestResponse, ApiInternalServerErrorResponse, ApiNotFoundResponse, ApiOkResponse, ApiOperation, ApiTags } from "@nestjs/swagger";
+import {  ApiTags } from "@nestjs/swagger";
 import { BasketService } from "./basket.service";
-import { AddItemDto } from "./dto/add-item.dto";
 import { Request } from 'express';
 
 @ApiTags('basket')
@@ -57,7 +56,7 @@ export class BasketController {
     const authHeader = req.headers['authorization'];
     const userId = this.basketService.decodeUserIdFromToken(authHeader);
     const { typeCounter, id: productId } = body;
-
+    console.log(userId, productId, typeCounter, 'userId, productId, typeCounter');
     return this.basketService.updateBasketCount(userId, productId, typeCounter);
   }
 }
